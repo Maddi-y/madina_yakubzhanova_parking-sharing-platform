@@ -3,14 +3,10 @@
 -- Database Schema
 -- PostgreSQL
 
-CREATE TABLE roles (
-role_id BIGSERIAL PRIMARY KEY,
-name VARCHAR(50) NOT NULL UNIQUE
-);
-
 CREATE TABLE users (
 user_id BIGSERIAL PRIMARY KEY,
-role_id BIGINT NOT NULL,
+
+role VARCHAR(20) NOT NULL,
 
 name VARCHAR(100) NOT NULL,
 
@@ -24,10 +20,14 @@ status VARCHAR(20) NOT NULL,
 
 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-CONSTRAINT fk_users_role
-    FOREIGN KEY (role_id)
-    REFERENCES roles(role_id)
-    ON DELETE RESTRICT,
+ CONSTRAINT chk_users_role
+        CHECK (
+            role IN (
+                'ADMIN',
+                'OWNER',
+                'DRIVER'
+            )
+        ),
 
 CONSTRAINT chk_users_status
     CHECK (
@@ -127,7 +127,7 @@ CONSTRAINT chk_booking_time
     CHECK (end_time > start_time),
 
 CONSTRAINT chk_booking_price
-    CHECK (total_price >= 0),
+    CHECK (total_price > 0),
 
 CONSTRAINT chk_booking_status
     CHECK (
@@ -190,4 +190,41 @@ CONSTRAINT chk_rating
     CHECK (
         rating BETWEEN 1 AND 5
     )
+);
+
+CREATE TABLE payments (
+    payment_id BIGSERIAL PRIMARY KEY,
+
+    booking_id BIGINT NOT NULL UNIQUE,
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    payment_method VARCHAR(20) NOT NULL,
+
+    status VARCHAR(20) NOT NULL,
+
+    transaction_id VARCHAR(255) UNIQUE NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_payment_booking
+        FOREIGN KEY (booking_id)
+        REFERENCES bookings(booking_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_payment_amount
+        CHECK (amount > 0),
+
+   CONSTRAINT chk_payment_method
+       CHECK (payment_method = 'CARD'),
+
+    CONSTRAINT chk_payment_status
+        CHECK (
+            status IN (
+                'PENDING',
+                'PAID',
+                'FAILED',
+                'REFUNDED'
+            )
+        )
 );
