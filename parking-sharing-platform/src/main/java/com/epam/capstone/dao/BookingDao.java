@@ -5,8 +5,7 @@ import com.epam.capstone.model.enums.BookingStatus;
 
 import java.util.List;
 
-public interface BookingDao
-        extends GenericDao<Booking, Long> {
+public interface BookingDao extends GenericDao<Booking, Long> {
 
     List<Booking> findByDriverId(
             Long driverId,
