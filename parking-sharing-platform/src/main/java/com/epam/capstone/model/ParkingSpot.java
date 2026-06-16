@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ParkingSpot {
+
     private Long spotId;
     private User owner;
     private String title;
@@ -31,6 +32,7 @@ public class ParkingSpot {
                        BigDecimal latitude,
                        BigDecimal longitude,
                        LocalDateTime createdAt) {
+
         this.spotId = spotId;
         this.owner = owner;
         this.title = title;
@@ -124,10 +126,16 @@ public class ParkingSpot {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ParkingSpot that)) return false;
-        return Objects.equals(spotId, that.spotId);
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (!(object instanceof ParkingSpot parkingSpot)) {
+            return false;
+        }
+
+        return Objects.equals(spotId, parkingSpot.spotId);
     }
 
     @Override

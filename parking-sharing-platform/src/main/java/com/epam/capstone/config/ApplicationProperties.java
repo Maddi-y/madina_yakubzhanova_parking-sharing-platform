@@ -7,18 +7,16 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class ApplicationProperties {
+
     private static final Properties PROPERTIES = new Properties();
 
     static {
-        try (InputStream inputStream =
-                     ApplicationProperties.class
-                             .getClassLoader()
-                             .getResourceAsStream("application.properties")) {
+        try (InputStream inputStream = ApplicationProperties.class
+                .getClassLoader()
+                .getResourceAsStream("application.properties")) {
 
             if (inputStream == null) {
-                throw new ConnectionPoolException(
-                        "application.properties not found"
-                );
+                throw new ConnectionPoolException("application.properties not found");
             }
 
             PROPERTIES.load(inputStream);
@@ -32,6 +30,7 @@ public class ApplicationProperties {
     }
 
     private ApplicationProperties() {
+        // utility class
     }
 
     public static String getProperty(String key) {

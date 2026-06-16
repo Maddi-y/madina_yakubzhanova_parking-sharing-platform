@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Review {
+
     private Long reviewId;
     private Booking booking;
     private User author;
@@ -20,6 +21,7 @@ public class Review {
                   Integer rating,
                   String comment,
                   LocalDateTime createdAt) {
+
         this.reviewId = reviewId;
         this.booking = booking;
         this.author = author;
@@ -77,12 +79,12 @@ public class Review {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
 
-        if (!(o instanceof Review review)) {
+        if (!(object instanceof Review review)) {
             return false;
         }
 

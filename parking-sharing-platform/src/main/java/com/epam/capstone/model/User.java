@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class User {
+
     private Long userId;
     private UserRole role;
     private String name;
@@ -17,10 +18,17 @@ public class User {
     private LocalDateTime createdAt;
 
     public User() {
-
     }
 
-    public User(Long userId, UserRole role, String name, String email, String phone, String passwordHash, UserStatus status, LocalDateTime createdAt) {
+    public User(Long userId,
+                UserRole role,
+                String name,
+                String email,
+                String phone,
+                String passwordHash,
+                UserStatus status,
+                LocalDateTime createdAt) {
+
         this.userId = userId;
         this.role = role;
         this.name = name;
@@ -96,12 +104,12 @@ public class User {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
 
-        if (!(o instanceof User user)) {
+        if (!(object instanceof User user)) {
             return false;
         }
 

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Booking {
+
     private Long bookingId;
     private User driver;
     private ParkingSpot parkingSpot;
@@ -27,6 +28,7 @@ public class Booking {
                    BigDecimal totalPrice,
                    BookingStatus status,
                    LocalDateTime createdAt) {
+
         this.bookingId = bookingId;
         this.driver = driver;
         this.parkingSpot = parkingSpot;
@@ -102,11 +104,11 @@ public class Booking {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
-        if (!(o instanceof Booking booking)) {
+        if (!(object instanceof Booking booking)) {
             return false;
         }
         return Objects.equals(bookingId, booking.bookingId);

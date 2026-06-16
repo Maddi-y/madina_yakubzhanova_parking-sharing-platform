@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Payment {
+
     private Long paymentId;
     private Booking booking;
     private BigDecimal amount;
@@ -26,6 +27,7 @@ public class Payment {
                    PaymentStatus status,
                    String transactionId,
                    LocalDateTime createdAt) {
+
         this.paymentId = paymentId;
         this.booking = booking;
         this.amount = amount;
@@ -92,12 +94,12 @@ public class Payment {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
 
-        if (!(o instanceof Payment payment)) {
+        if (!(object instanceof Payment payment)) {
             return false;
         }
 

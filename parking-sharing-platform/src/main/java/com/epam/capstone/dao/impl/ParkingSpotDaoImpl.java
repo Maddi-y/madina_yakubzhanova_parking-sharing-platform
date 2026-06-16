@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class ParkingSpotDaoImpl extends BaseDao implements ParkingSpotDao {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ParkingSpotDaoImpl.class);
 
     private static final String INSERT_SPOT = """
@@ -86,27 +87,22 @@ public class ParkingSpotDaoImpl extends BaseDao implements ParkingSpotDao {
         super(connectionPool);
     }
 
-    private ParkingSpot mapRow(ResultSet rs)
-            throws SQLException {
+    private ParkingSpot mapRow(ResultSet resultSet) throws SQLException {
 
         User owner = new User();
-        owner.setUserId(
-                rs.getLong("owner_id")
-        );
+        owner.setUserId(resultSet.getLong("owner_id"));
 
         return new ParkingSpot(
-                rs.getLong("spot_id"),
+                resultSet.getLong("spot_id"),
                 owner,
-                rs.getString("title"),
-                rs.getString("address"),
-                rs.getString("description"),
-                rs.getBigDecimal("hourly_rate"),
-                ParkingSpotStatus.valueOf(
-                        rs.getString("status")
-                ),
-                rs.getBigDecimal("latitude"),
-                rs.getBigDecimal("longitude"),
-                rs.getTimestamp("created_at")
+                resultSet.getString("title"),
+                resultSet.getString("address"),
+                resultSet.getString("description"),
+                resultSet.getBigDecimal("hourly_rate"),
+                ParkingSpotStatus.valueOf(resultSet.getString("status")),
+                resultSet.getBigDecimal("latitude"),
+                resultSet.getBigDecimal("longitude"),
+                resultSet.getTimestamp("created_at")
                         .toLocalDateTime()
         );
     }
@@ -114,513 +110,194 @@ public class ParkingSpotDaoImpl extends BaseDao implements ParkingSpotDao {
     @Override
     public ParkingSpot save(ParkingSpot entity) {
 
-        if (entity.getOwner() == null
-                || entity.getOwner().getUserId() == null) {
-
-            throw new DaoException(
-                    "Parking spot owner must not be null"
-            );
+        if (entity.getOwner() == null || entity.getOwner().getUserId() == null) {
+            throw new DaoException("Parking spot owner must not be null");
         }
 
-        Connection connection = null;
-
-        try {
-
-            connection = getConnection();
+        return execute(connection -> {
 
             try (PreparedStatement statement =
-                         connection.prepareStatement(
-                                 INSERT_SPOT,
-                                 Statement.RETURN_GENERATED_KEYS
-                         )) {
+                         connection.prepareStatement(INSERT_SPOT, Statement.RETURN_GENERATED_KEYS)) {
 
-                statement.setLong(
-                        1,
-                        entity.getOwner().getUserId()
-                );
+                statement.setLong(1, entity.getOwner().getUserId());
+                statement.setString(2, entity.getTitle());
+                statement.setString(3, entity.getAddress());
+                statement.setString(4, entity.getDescription());
+                statement.setBigDecimal(5, entity.getHourlyRate());
+                statement.setString(6, entity.getStatus().name());
+                statement.setBigDecimal(7, entity.getLatitude());
+                statement.setBigDecimal(8, entity.getLongitude());
 
-                statement.setString(
-                        2,
-                        entity.getTitle()
-                );
-
-                statement.setString(
-                        3,
-                        entity.getAddress()
-                );
-
-                statement.setString(
-                        4,
-                        entity.getDescription()
-                );
-
-                statement.setBigDecimal(
-                        5,
-                        entity.getHourlyRate()
-                );
-
-                statement.setString(
-                        6,
-                        entity.getStatus().name()
-                );
-
-                statement.setBigDecimal(
-                        7,
-                        entity.getLatitude()
-                );
-
-                statement.setBigDecimal(
-                        8,
-                        entity.getLongitude()
-                );
-
-                int affectedRows =
-                        statement.executeUpdate();
+                int affectedRows = statement.executeUpdate();
 
                 if (affectedRows == 0) {
-
-                    throw new DaoException(
-                            "Failed to save parking spot"
-                    );
+                    throw new DaoException("Failed to save parking spot");
                 }
 
-                try (ResultSet generatedKeys =
-                             statement.getGeneratedKeys()) {
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
 
                     if (generatedKeys.next()) {
-
-                        entity.setSpotId(
-                                generatedKeys.getLong(1)
-                        );
-
+                        entity.setSpotId(generatedKeys.getLong(1));
                     } else {
-
-                        throw new DaoException(
-                                "Failed to obtain generated parking spot id"
-                        );
+                        throw new DaoException("Failed to obtain generated parking spot id");
                     }
                 }
 
-                LOGGER.info(
-                        "Parking spot saved successfully. ID={}",
-                        entity.getSpotId()
-                );
-
+                LOGGER.info("Parking spot saved successfully. ID={}", entity.getSpotId());
                 return entity;
             }
 
-        } catch (SQLException e) {
-
-            LOGGER.error(
-                    "Error saving parking spot",
-                    e
-            );
-
-            throw new DaoException(
-                    "Failed to save parking spot",
-                    e
-            );
-
-        } finally {
-
-            if (connection != null) {
-                releaseConnection(connection);
-            }
-        }
+        }, "Error saving parking spot");
     }
+
 
     @Override
     public Optional<ParkingSpot> findById(Long id) {
 
-        Connection connection = null;
+        return execute(connection -> {
 
-        try {
-
-            connection = getConnection();
-
-            try (PreparedStatement statement =
-                         connection.prepareStatement(FIND_BY_ID)) {
+            try (PreparedStatement statement = connection.prepareStatement(FIND_BY_ID)) {
 
                 statement.setLong(1, id);
 
-                try (ResultSet rs =
-                             statement.executeQuery()) {
+                try (ResultSet rs = statement.executeQuery()) {
 
                     if (rs.next()) {
-
-                        return Optional.of(
-                                mapRow(rs)
-                        );
+                        return Optional.of(mapRow(rs));
                     }
-
                     return Optional.empty();
                 }
             }
-
-        } catch (SQLException e) {
-
-            LOGGER.error(
-                    "Error finding parking spot by id={}",
-                    id,
-                    e
-            );
-
-            throw new DaoException(
-                    "Failed to find parking spot by id=" + id,
-                    e
-            );
-
-        } finally {
-
-            if (connection != null) {
-                releaseConnection(connection);
-            }
-        }
+        }, "Error finding parking spot by id");
     }
 
     @Override
     public List<ParkingSpot> findAll(int page, int size) {
 
-        Connection connection = null;
+        return execute(connection -> {
 
-        try {
-
-            connection = getConnection();
-
-            try (PreparedStatement statement =
-                         connection.prepareStatement(FIND_ALL)) {
-
-                int offset = (page - 1) * size;
+            try (PreparedStatement statement = connection.prepareStatement(FIND_ALL)) {
 
                 statement.setInt(1, size);
-                statement.setInt(2, offset);
+                statement.setInt(2, calculateOffset(page, size));
 
-                List<ParkingSpot> parkingSpots =
-                        new ArrayList<>();
+                List<ParkingSpot> parkingSpots = new ArrayList<>();
 
-                try (ResultSet rs =
-                             statement.executeQuery()) {
+                try (ResultSet rs = statement.executeQuery()) {
 
                     while (rs.next()) {
-
-                        parkingSpots.add(
-                                mapRow(rs)
-                        );
+                        parkingSpots.add(mapRow(rs));
                     }
                 }
-
                 return parkingSpots;
             }
-
-        } catch (SQLException e) {
-
-            LOGGER.error(
-                    "Error finding all parking spots",
-                    e
-            );
-
-            throw new DaoException(
-                    "Failed to find parking spots",
-                    e
-            );
-
-        } finally {
-
-            if (connection != null) {
-                releaseConnection(connection);
-            }
-        }
+        }, "Error finding all parking spots");
     }
 
     @Override
     public ParkingSpot update(ParkingSpot entity) {
 
-        Connection connection = null;
-
-        try {
-
-            connection = getConnection();
+        return execute(connection -> {
 
             try (PreparedStatement statement =
-                         connection.prepareStatement(
-                                 UPDATE_SPOT
-                         )) {
+                         connection.prepareStatement(UPDATE_SPOT)) {
 
-                statement.setLong(
-                        1,
-                        entity.getOwner().getUserId()
-                );
+                statement.setLong(1, entity.getOwner().getUserId());
+                statement.setString(2, entity.getTitle());
+                statement.setString(3, entity.getAddress());
+                statement.setString(4, entity.getDescription());
+                statement.setBigDecimal(5, entity.getHourlyRate());
+                statement.setString(6, entity.getStatus().name());
+                statement.setBigDecimal(7, entity.getLatitude());
+                statement.setBigDecimal(8, entity.getLongitude());
+                statement.setLong(9, entity.getSpotId());
 
-                statement.setString(
-                        2,
-                        entity.getTitle()
-                );
-
-                statement.setString(
-                        3,
-                        entity.getAddress()
-                );
-
-                statement.setString(
-                        4,
-                        entity.getDescription()
-                );
-
-                statement.setBigDecimal(
-                        5,
-                        entity.getHourlyRate()
-                );
-
-                statement.setString(
-                        6,
-                        entity.getStatus().name()
-                );
-
-                statement.setBigDecimal(
-                        7,
-                        entity.getLatitude()
-                );
-
-                statement.setBigDecimal(
-                        8,
-                        entity.getLongitude()
-                );
-
-                statement.setLong(
-                        9,
-                        entity.getSpotId()
-                );
-
-                int affectedRows =
-                        statement.executeUpdate();
+                int affectedRows = statement.executeUpdate();
 
                 if (affectedRows == 0) {
-
-                    throw new DaoException(
-                            "Parking spot not found. ID="
-                                    + entity.getSpotId()
-                    );
+                    throw new DaoException("Parking spot not found. ID=" + entity.getSpotId());
                 }
 
-                LOGGER.info(
-                        "Parking spot updated successfully. ID={}",
-                        entity.getSpotId()
-                );
-
+                LOGGER.info("Parking spot updated successfully. ID={}", entity.getSpotId());
                 return entity;
             }
-
-        } catch (SQLException e) {
-
-            LOGGER.error(
-                    "Error updating parking spot. ID={}",
-                    entity.getSpotId(),
-                    e
-            );
-
-            throw new DaoException(
-                    "Failed to update parking spot",
-                    e
-            );
-
-        } finally {
-
-            if (connection != null) {
-                releaseConnection(connection);
-            }
-        }
+        }, "Error updating parking spot");
     }
 
     @Override
     public boolean deleteById(Long id) {
 
-        Connection connection = null;
-
-        try {
-
-            connection = getConnection();
+        return execute(connection -> {
 
             try (PreparedStatement statement =
-                         connection.prepareStatement(
-                                 DELETE_BY_ID
-                         )) {
+                         connection.prepareStatement(DELETE_BY_ID)) {
 
                 statement.setLong(1, id);
 
-                int affectedRows =
-                        statement.executeUpdate();
+                int affectedRows = statement.executeUpdate();
 
-                boolean deleted =
-                        affectedRows > 0;
+                boolean deleted = affectedRows > 0;
 
                 if (deleted) {
-
-                    LOGGER.info(
-                            "Parking spot deleted successfully. ID={}",
-                            id
-                    );
-
+                    LOGGER.info("Parking spot deleted successfully. ID={}", id);
                 } else {
-
-                    LOGGER.warn(
-                            "Parking spot not found. ID={}",
-                            id
-                    );
+                    LOGGER.warn("Parking spot not found. ID={}", id);
                 }
-
                 return deleted;
             }
-
-        } catch (SQLException e) {
-
-            LOGGER.error(
-                    "Error deleting parking spot. ID={}",
-                    id,
-                    e
-            );
-
-            throw new DaoException(
-                    "Failed to delete parking spot",
-                    e
-            );
-
-        } finally {
-
-            if (connection != null) {
-                releaseConnection(connection);
-            }
-        }
+        }, "Error deleting parking spot");
     }
 
     @Override
-    public List<ParkingSpot> findByOwnerId(
-            Long ownerId,
-            int page,
-            int size
-    ) {
+    public List<ParkingSpot> findByOwnerId(Long ownerId, int page, int size) {
 
-        Connection connection = null;
-
-        try {
-
-            connection = getConnection();
+        return execute(connection -> {
 
             try (PreparedStatement statement =
-                         connection.prepareStatement(
-                                 FIND_BY_OWNER_ID
-                         )) {
-
-                int offset = (page - 1) * size;
+                         connection.prepareStatement(FIND_BY_OWNER_ID)) {
 
                 statement.setLong(1, ownerId);
                 statement.setInt(2, size);
-                statement.setInt(3, offset);
+                statement.setInt(3, calculateOffset(page, size));
 
-                List<ParkingSpot> parkingSpots =
-                        new ArrayList<>();
+                List<ParkingSpot> parkingSpots = new ArrayList<>();
 
-                try (ResultSet rs =
-                             statement.executeQuery()) {
+                try (ResultSet rs = statement.executeQuery()) {
 
                     while (rs.next()) {
-
-                        parkingSpots.add(
-                                mapRow(rs)
-                        );
+                        parkingSpots.add(mapRow(rs));
                     }
                 }
 
-                LOGGER.info(
-                        "Found {} parking spots for owner ID={}",
-                        parkingSpots.size(),
-                        ownerId
-                );
-
+                LOGGER.info("Found {} parking spots for owner ID={}", parkingSpots.size(), ownerId);
                 return parkingSpots;
             }
-
-        } catch (SQLException e) {
-
-            LOGGER.error(
-                    "Error finding parking spots by owner ID={}",
-                    ownerId,
-                    e
-            );
-
-            throw new DaoException(
-                    "Failed to find parking spots by owner",
-                    e
-            );
-
-        } finally {
-
-            if (connection != null) {
-                releaseConnection(connection);
-            }
-        }
+        }, "Error finding parking spots by owner");
     }
 
     @Override
-    public List<ParkingSpot> findAvailable(
-            int page,
-            int size
-    ) {
+    public List<ParkingSpot> findAvailable(int page, int size) {
 
-        Connection connection = null;
-
-        try {
-
-            connection = getConnection();
+        return execute(connection -> {
 
             try (PreparedStatement statement =
-                         connection.prepareStatement(
-                                 FIND_AVAILABLE
-                         )) {
-
-                int offset = (page - 1) * size;
+                         connection.prepareStatement(FIND_AVAILABLE)) {
 
                 statement.setInt(1, size);
-                statement.setInt(2, offset);
+                statement.setInt(2, calculateOffset(page, size));
 
-                List<ParkingSpot> parkingSpots =
-                        new ArrayList<>();
+                List<ParkingSpot> parkingSpots = new ArrayList<>();
 
-                try (ResultSet rs =
-                             statement.executeQuery()) {
+                try (ResultSet rs = statement.executeQuery()) {
 
                     while (rs.next()) {
-
-                        parkingSpots.add(
-                                mapRow(rs)
-                        );
+                        parkingSpots.add(mapRow(rs));
                     }
                 }
 
-                LOGGER.info(
-                        "Found {} available parking spots",
-                        parkingSpots.size()
-                );
-
+                LOGGER.info("Found {} available parking spots", parkingSpots.size());
                 return parkingSpots;
             }
-
-        } catch (SQLException e) {
-
-            LOGGER.error(
-                    "Error finding available parking spots",
-                    e
-            );
-
-            throw new DaoException(
-                    "Failed to find available parking spots",
-                    e
-            );
-
-        } finally {
-
-            if (connection != null) {
-                releaseConnection(connection);
-            }
-        }
+        }, "Error finding available parking spots");
     }
 }

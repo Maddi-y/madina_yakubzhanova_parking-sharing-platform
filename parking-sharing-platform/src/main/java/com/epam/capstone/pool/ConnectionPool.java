@@ -10,54 +10,38 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class ConnectionPool {
-    private static final String URL =
-            ApplicationProperties.getProperty("db.url");
 
-    private static final String USERNAME =
-            ApplicationProperties.getProperty("db.username");
+    private static final String URL = ApplicationProperties.getProperty("db.url");
+    private static final String USERNAME = ApplicationProperties.getProperty("db.username");
+    private static final String PASSWORD = ApplicationProperties.getProperty("db.password");
+    private static final String DRIVER = ApplicationProperties.getProperty("db.driver");
 
-    private static final String PASSWORD =
-            ApplicationProperties.getProperty("db.password");
+    private static final int POOL_SIZE = Integer.parseInt(
+            ApplicationProperties.getProperty("pool.size")
+    );
 
-    private static final String DRIVER =
-            ApplicationProperties.getProperty("db.driver");
-
-    private static final int POOL_SIZE =
-            Integer.parseInt(
-                    ApplicationProperties.getProperty("pool.size")
-            );
-
-    private static final ConnectionPool INSTANCE =
-            new ConnectionPool();
+    private static final ConnectionPool INSTANCE = new ConnectionPool();
 
     private final BlockingQueue<Connection> availableConnections;
     private final BlockingQueue<Connection> usedConnections;
 
     private ConnectionPool() {
-
         try {
             Class.forName(DRIVER);
 
-            availableConnections =
-                    new ArrayBlockingQueue<>(POOL_SIZE);
-
-            usedConnections =
-                    new ArrayBlockingQueue<>(POOL_SIZE);
+            availableConnections = new ArrayBlockingQueue<>(POOL_SIZE);
+            usedConnections = new ArrayBlockingQueue<>(POOL_SIZE);
 
             for (int i = 0; i < POOL_SIZE; i++) {
-
-                Connection connection =
-                        DriverManager.getConnection(
-                                URL,
-                                USERNAME,
-                                PASSWORD
-                        );
-
+                Connection connection = DriverManager.getConnection(
+                        URL,
+                        USERNAME,
+                        PASSWORD
+                );
                 availableConnections.offer(connection);
             }
 
         } catch (ClassNotFoundException | SQLException e) {
-
             throw new ConnectionPoolException(
                     "Failed to initialize connection pool",
                     e
@@ -70,20 +54,13 @@ public class ConnectionPool {
     }
 
     public Connection getConnection() {
-
         try {
-
-            Connection connection =
-                    availableConnections.take();
-
+            Connection connection = availableConnections.take();
             usedConnections.offer(connection);
-
             return connection;
 
         } catch (InterruptedException e) {
-
             Thread.currentThread().interrupt();
-
             throw new ConnectionPoolException(
                     "Failed to get connection from pool",
                     e
@@ -92,20 +69,16 @@ public class ConnectionPool {
     }
 
     public void releaseConnection(Connection connection) {
-
         if (connection == null) {
             return;
         }
 
         usedConnections.remove(connection);
-
         availableConnections.offer(connection);
     }
 
     public void shutdown() {
-
         try {
-
             for (Connection connection : availableConnections) {
                 connection.close();
             }
@@ -115,7 +88,6 @@ public class ConnectionPool {
             }
 
         } catch (SQLException e) {
-
             throw new ConnectionPoolException(
                     "Failed to close connections",
                     e

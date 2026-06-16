@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Favourite {
+
     private Long favouriteId;
     private User user;
     private ParkingSpot parkingSpot;
@@ -16,6 +17,7 @@ public class Favourite {
                      User user,
                      ParkingSpot parkingSpot,
                      LocalDateTime createdAt) {
+
         this.favouriteId = favouriteId;
         this.user = user;
         this.parkingSpot = parkingSpot;
@@ -55,12 +57,12 @@ public class Favourite {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
 
-        if (!(o instanceof Favourite favourite)) {
+        if (!(object instanceof Favourite favourite)) {
             return false;
         }
 
