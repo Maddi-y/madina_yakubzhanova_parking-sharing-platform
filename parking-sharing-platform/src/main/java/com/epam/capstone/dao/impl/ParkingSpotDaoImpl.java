@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class ParkingSpotDaoImpl extends BaseDao implements ParkingSpotDao {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(ParkingSpotDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParkingSpotDaoImpl.class);
 
     private static final String INSERT_SPOT = """
             INSERT INTO parking_spots (
