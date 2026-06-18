@@ -1,6 +1,5 @@
-package com.epam.capstone;
+package com.epam.capstone.dao;
 
-import com.epam.capstone.dao.UserDao;
 import com.epam.capstone.dao.impl.UserDaoImpl;
 import com.epam.capstone.model.User;
 import com.epam.capstone.model.enums.UserRole;

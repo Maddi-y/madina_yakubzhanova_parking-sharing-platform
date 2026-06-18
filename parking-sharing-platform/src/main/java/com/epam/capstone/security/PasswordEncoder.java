@@ -1,0 +1,8 @@
+package com.epam.capstone.security;
+
+public interface PasswordEncoder {
+
+    String encode(String rawPassword);
+
+    boolean matches(String rawPassword, String encodedPassword);
+}
