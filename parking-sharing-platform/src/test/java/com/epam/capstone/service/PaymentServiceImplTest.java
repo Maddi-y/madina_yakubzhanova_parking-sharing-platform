@@ -208,6 +208,22 @@ class PaymentServiceImplTest {
     }
 
     @Test
+    void update_ShouldThrowException_WhenPaymentAlreadyRefunded() {
+
+        Payment payment = buildPayment();
+
+        Payment existingPayment = buildPayment();
+        existingPayment.setStatus(PaymentStatus.REFUNDED);
+
+        when(paymentDao.findById(1L)).thenReturn(Optional.of(existingPayment));
+
+        assertThrows(ValidationException.class, () -> paymentService.update(payment));
+
+        verify(paymentValidator).validate(payment);
+        verify(paymentDao, never()).update(any());
+    }
+
+    @Test
     void findByBookingId_ShouldReturnPayment() {
 
         Payment payment = buildPayment();

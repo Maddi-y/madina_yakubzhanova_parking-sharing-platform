@@ -32,6 +32,12 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
 
         parkingSpotValidator.validate(parkingSpot);
 
+        if (parkingSpot.getStatus() == ParkingSpotStatus.ARCHIVED) {
+            throw new ValidationException(
+                    "New parking spot cannot be archived"
+            );
+        }
+
         ParkingSpot savedSpot = parkingSpotDao.save(parkingSpot);
 
         LOGGER.info("Parking spot created successfully. ID={}", savedSpot.getSpotId());

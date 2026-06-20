@@ -6,6 +6,7 @@ import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.Booking;
 import com.epam.capstone.model.Review;
 import com.epam.capstone.model.User;
+import com.epam.capstone.model.enums.BookingStatus;
 import com.epam.capstone.service.impl.ReviewServiceImpl;
 import com.epam.capstone.validation.ReviewValidator;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ class ReviewServiceImplTest {
 
         Booking booking = new Booking();
         booking.setBookingId(10L);
+        booking.setStatus(BookingStatus.COMPLETED);
 
         Review review = new Review();
 
@@ -83,6 +85,21 @@ class ReviewServiceImplTest {
 
         assertThrows(ValidationException.class, () -> reviewService.create(review));
 
+        verify(reviewDao, never()).save(any());
+    }
+
+    @Test
+    void create_ShouldThrowException_WhenBookingIsNotCompleted() {
+
+        Review review = buildReview();
+
+        review.getBooking().setStatus(BookingStatus.CONFIRMED);
+
+        when(reviewDao.findByBookingId(review.getBooking().getBookingId())).thenReturn(Optional.empty());
+
+        assertThrows(ValidationException.class, () -> reviewService.create(review));
+
+        verify(reviewValidator).validate(review);
         verify(reviewDao, never()).save(any());
     }
 

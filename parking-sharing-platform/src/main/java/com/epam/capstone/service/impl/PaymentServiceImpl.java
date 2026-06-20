@@ -92,11 +92,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment existingPayment = findById(payment.getPaymentId());
 
-        if (existingPayment.getStatus() == PaymentStatus.PAID) {
+        if (existingPayment.getStatus() == PaymentStatus.PAID || existingPayment.getStatus() == PaymentStatus.REFUNDED) {
 
             LOGGER.warn("Attempt to update paid payment. ID={}", payment.getPaymentId());
 
-            throw new ValidationException("Paid payment cannot be updated");
+            throw new ValidationException("Paid or refunded payment cannot be updated");
         }
 
         Payment updatedPayment = paymentDao.update(payment);

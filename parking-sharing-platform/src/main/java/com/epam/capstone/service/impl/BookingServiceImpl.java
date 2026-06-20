@@ -38,8 +38,11 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Start time must be in the future");
         }
 
+        validateBookingOverlap(booking);
+
         booking.setStatus(BookingStatus.PENDING);
         booking.setCreatedAt(LocalDateTime.now());
+
         Booking savedBooking = bookingDao.save(booking);
 
         LOGGER.info("Booking created successfully. ID={}", savedBooking.getBookingId());
@@ -104,6 +107,8 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getStartTime().isAfter(LocalDateTime.now())) {
             throw new ValidationException("Start time must be in the future");
         }
+
+        validateBookingOverlap(booking);
 
         Booking updatedBooking = bookingDao.update(booking);
 
@@ -194,5 +199,27 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookingDao.findByStatus(status, page, size);
+    }
+
+    private void validateBookingOverlap(Booking booking) {
+
+        List<Booking> existingBookings = bookingDao.findByParkingSpotId(booking.getParkingSpot().getSpotId());
+
+        for (Booking existing : existingBookings) {
+            if (booking.getBookingId() != null && existing.getBookingId().equals(booking.getBookingId())) {
+                continue;
+            }
+
+            if (existing.getStatus() == BookingStatus.CANCELLED) {
+                continue;
+            }
+
+            boolean overlaps = booking.getStartTime().isBefore(existing.getEndTime()) &&
+                    booking.getEndTime().isAfter(existing.getStartTime());
+
+            if (overlaps) {
+                throw new ValidationException("Parking spot is already booked for selected time");
+            }
+        }
     }
 }

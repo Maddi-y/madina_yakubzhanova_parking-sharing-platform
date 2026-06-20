@@ -3,7 +3,9 @@ package com.epam.capstone.service.impl;
 import com.epam.capstone.dao.ReviewDao;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
+import com.epam.capstone.model.Booking;
 import com.epam.capstone.model.Review;
+import com.epam.capstone.model.enums.BookingStatus;
 import com.epam.capstone.service.ReviewService;
 import com.epam.capstone.validation.ReviewValidator;
 import org.slf4j.Logger;
@@ -39,6 +41,12 @@ public class ReviewServiceImpl implements ReviewService {
             LOGGER.warn("Review already exists for booking. Booking ID={}", bookingId);
 
             throw new ValidationException("Review for this booking already exists");
+        }
+
+        Booking booking = review.getBooking();
+
+        if (booking.getStatus() != BookingStatus.COMPLETED) {
+            throw new ValidationException("Review can only be left for completed booking");
         }
 
         Review savedReview = reviewDao.save(review);

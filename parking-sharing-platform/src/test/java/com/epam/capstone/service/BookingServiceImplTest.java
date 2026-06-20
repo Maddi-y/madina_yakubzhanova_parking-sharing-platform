@@ -53,6 +53,8 @@ class BookingServiceImplTest {
         booking.setEndTime(LocalDateTime.now().plusHours(3));
         booking.setTotalPrice(BigDecimal.valueOf(2000));
         booking.setStatus(BookingStatus.PENDING);
+        booking.setStartTime(LocalDateTime.now().plusDays(1));
+        booking.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
 
         return booking;
     }
@@ -93,6 +95,24 @@ class BookingServiceImplTest {
         assertThrows(ValidationException.class, () -> bookingService.create(booking));
 
         verify(bookingValidator).validate(booking);
+        verify(bookingDao, never()).save(any());
+    }
+
+    @Test
+    void create_ShouldThrowException_WhenBookingTimeOverlaps() {
+
+        Booking newBooking = buildBooking();
+        Booking existingBooking = buildBooking();
+
+        existingBooking.setBookingId(999L);
+        existingBooking.setStartTime(newBooking.getStartTime().minusHours(1));
+        existingBooking.setEndTime(newBooking.getStartTime().plusHours(1));
+
+        when(bookingDao.findByParkingSpotId(newBooking.getParkingSpot().getSpotId())).thenReturn(List.of(existingBooking));
+
+        assertThrows(ValidationException.class, () -> bookingService.create(newBooking));
+
+        verify(bookingValidator).validate(newBooking);
         verify(bookingDao, never()).save(any());
     }
 
@@ -249,6 +269,25 @@ class BookingServiceImplTest {
 
         assertThrows(ValidationException.class, () -> bookingService.update(booking));
 
+        verify(bookingDao, never()).update(any());
+    }
+
+    @Test
+    void update_ShouldThrowException_WhenBookingTimeOverlaps() {
+
+        Booking bookingToUpdate = buildBooking();
+        Booking existingBooking = buildBooking();
+
+        existingBooking.setBookingId(999L);
+        existingBooking.setStartTime(bookingToUpdate.getStartTime().minusHours(1));
+        existingBooking.setEndTime(bookingToUpdate.getStartTime().plusHours(1));
+
+        when(bookingDao.findById(bookingToUpdate.getBookingId())).thenReturn(Optional.of(bookingToUpdate));
+        when(bookingDao.findByParkingSpotId(bookingToUpdate.getParkingSpot().getSpotId())).thenReturn(List.of(existingBooking));
+
+        assertThrows(ValidationException.class, () -> bookingService.update(bookingToUpdate));
+
+        verify(bookingValidator).validate(bookingToUpdate);
         verify(bookingDao, never()).update(any());
     }
 

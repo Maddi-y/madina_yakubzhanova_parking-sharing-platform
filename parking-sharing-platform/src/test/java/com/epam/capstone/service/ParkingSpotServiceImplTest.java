@@ -77,6 +77,32 @@ class ParkingSpotServiceImplTest {
     }
 
     @Test
+    void create_ShouldThrowException_WhenValidationFails() {
+
+        ParkingSpot spot = buildParkingSpot();
+
+        doThrow(new ValidationException("Validation failed")).when(parkingSpotValidator).validate(spot);
+
+        assertThrows(ValidationException.class, () -> parkingSpotService.create(spot));
+
+        verify(parkingSpotValidator).validate(spot);
+        verify(parkingSpotDao, never()).save(any());
+    }
+
+    @Test
+    void create_ShouldThrowException_WhenStatusIsArchived() {
+
+        ParkingSpot parkingSpot = buildParkingSpot();
+
+        parkingSpot.setStatus(ParkingSpotStatus.ARCHIVED);
+
+        assertThrows(ValidationException.class, () -> parkingSpotService.create(parkingSpot));
+
+        verify(parkingSpotValidator).validate(parkingSpot);
+        verify(parkingSpotDao, never()).save(any());
+    }
+
+    @Test
     void findById_ShouldReturnSpot_WhenExists() {
 
         ParkingSpot spot = buildParkingSpot();

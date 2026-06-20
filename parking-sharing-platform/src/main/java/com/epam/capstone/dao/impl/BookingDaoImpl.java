@@ -80,6 +80,12 @@ public class BookingDaoImpl extends BaseDao implements BookingDao {
             OFFSET ?
             """;
 
+    private static final String FIND_BY_SPOT_ID_ALL = """
+            SELECT *
+            FROM bookings
+            WHERE spot_id = ?
+            """;
+
     private static final String FIND_BY_STATUS = """
             SELECT *
             FROM bookings
@@ -189,7 +195,7 @@ public class BookingDaoImpl extends BaseDao implements BookingDao {
 
         return execute(connection -> {
 
-        List<Booking> bookings = new ArrayList<>();
+            List<Booking> bookings = new ArrayList<>();
 
             try (PreparedStatement statement =
                          connection.prepareStatement(FIND_ALL)) {
@@ -321,6 +327,31 @@ public class BookingDaoImpl extends BaseDao implements BookingDao {
                 throw new DaoException("Failed to find bookings by parking spot id", e);
             }
 
+        }, "Error finding bookings by spotId=" + spotId);
+    }
+
+    @Override
+    public List<Booking> findByParkingSpotId(Long spotId) {
+
+        return execute(connection -> {
+
+            List<Booking> bookings = new ArrayList<>();
+
+            try (PreparedStatement statement = connection.prepareStatement(FIND_BY_SPOT_ID_ALL)) {
+                statement.setLong(1, spotId);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        bookings.add(mapRow(resultSet));
+                    }
+                }
+
+                return bookings;
+
+            } catch (SQLException e) {
+                throw new DaoException(
+                        "Failed to find bookings by parking spot id", e);
+            }
         }, "Error finding bookings by spotId=" + spotId);
     }
 
