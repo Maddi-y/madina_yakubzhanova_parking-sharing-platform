@@ -1,16 +1,17 @@
-package com.epam.capstone.service;
+package com.epam.capstone.service.impl;
 
 import com.epam.capstone.dao.FavouriteDao;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.Favourite;
+import com.epam.capstone.service.FavouriteService;
 import com.epam.capstone.validation.FavouriteValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class FavouriteServiceImpl implements FavouriteService{
+public class FavouriteServiceImpl implements FavouriteService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FavouriteServiceImpl.class);
 

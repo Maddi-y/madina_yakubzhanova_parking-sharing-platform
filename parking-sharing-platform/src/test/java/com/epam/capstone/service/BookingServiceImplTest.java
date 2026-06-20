@@ -7,6 +7,7 @@ import com.epam.capstone.model.Booking;
 import com.epam.capstone.model.ParkingSpot;
 import com.epam.capstone.model.User;
 import com.epam.capstone.model.enums.BookingStatus;
+import com.epam.capstone.service.impl.BookingServiceImpl;
 import com.epam.capstone.validation.BookingValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

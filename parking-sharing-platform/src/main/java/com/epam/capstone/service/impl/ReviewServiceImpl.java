@@ -1,9 +1,10 @@
-package com.epam.capstone.service;
+package com.epam.capstone.service.impl;
 
 import com.epam.capstone.dao.ReviewDao;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.Review;
+import com.epam.capstone.service.ReviewService;
 import com.epam.capstone.validation.ReviewValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

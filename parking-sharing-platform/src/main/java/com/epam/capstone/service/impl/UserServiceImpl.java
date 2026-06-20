@@ -1,4 +1,4 @@
-package com.epam.capstone.service;
+package com.epam.capstone.service.impl;
 
 
 import com.epam.capstone.dao.UserDao;
@@ -7,6 +7,7 @@ import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.User;
 import com.epam.capstone.model.enums.UserStatus;
 import com.epam.capstone.security.PasswordEncoder;
+import com.epam.capstone.service.UserService;
 import com.epam.capstone.validation.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

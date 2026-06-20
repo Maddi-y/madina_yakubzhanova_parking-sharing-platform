@@ -6,6 +6,7 @@ import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.Booking;
 import com.epam.capstone.model.Review;
 import com.epam.capstone.model.User;
+import com.epam.capstone.service.impl.ReviewServiceImpl;
 import com.epam.capstone.validation.ReviewValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

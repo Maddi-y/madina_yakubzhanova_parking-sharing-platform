@@ -1,10 +1,11 @@
-package com.epam.capstone.service;
+package com.epam.capstone.service.impl;
 
 import com.epam.capstone.dao.BookingDao;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.Booking;
 import com.epam.capstone.model.enums.BookingStatus;
+import com.epam.capstone.service.BookingService;
 import com.epam.capstone.validation.BookingValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

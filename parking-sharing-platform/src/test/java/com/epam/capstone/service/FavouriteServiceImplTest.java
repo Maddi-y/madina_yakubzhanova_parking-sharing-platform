@@ -6,6 +6,7 @@ import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.Favourite;
 import com.epam.capstone.model.ParkingSpot;
 import com.epam.capstone.model.User;
+import com.epam.capstone.service.impl.FavouriteServiceImpl;
 import com.epam.capstone.validation.FavouriteValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

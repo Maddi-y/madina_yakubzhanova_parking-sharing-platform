@@ -8,6 +8,7 @@ import com.epam.capstone.model.User;
 import com.epam.capstone.model.enums.UserRole;
 import com.epam.capstone.model.enums.UserStatus;
 import com.epam.capstone.security.PasswordEncoder;
+import com.epam.capstone.service.impl.UserServiceImpl;
 import com.epam.capstone.validation.UserValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

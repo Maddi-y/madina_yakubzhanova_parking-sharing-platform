@@ -1,10 +1,11 @@
-package com.epam.capstone.service;
+package com.epam.capstone.service.impl;
 
 import com.epam.capstone.dao.ParkingSpotDao;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.ParkingSpot;
 import com.epam.capstone.model.enums.ParkingSpotStatus;
+import com.epam.capstone.service.ParkingSpotService;
 import com.epam.capstone.validation.ParkingSpotValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
