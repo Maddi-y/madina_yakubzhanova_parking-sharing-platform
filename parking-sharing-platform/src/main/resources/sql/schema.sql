@@ -1,10 +1,10 @@
 
 -- Parking Sharing Platform
 -- Database Schema
--- PostgreSQL
+-- PostgresSQL
 
 CREATE TABLE users (
-user_id BIGSERIAL PRIMARY KEY,
+user_id BIG SERIAL PRIMARY KEY,
 
 role VARCHAR(20) NOT NULL,
 
@@ -46,7 +46,7 @@ CONSTRAINT chk_users_email
 );
 
 CREATE TABLE parking_spots (
-spot_id BIGSERIAL PRIMARY KEY,
+spot_id BIG SERIAL PRIMARY KEY,
 
 owner_id BIGINT NOT NULL,
 
@@ -97,7 +97,7 @@ CONSTRAINT chk_longitude
 );
 
 CREATE TABLE bookings (
-booking_id BIGSERIAL PRIMARY KEY,
+booking_id BIG SERIAL PRIMARY KEY,
 
 driver_id BIGINT NOT NULL,
 
@@ -141,7 +141,7 @@ CONSTRAINT chk_booking_status
 );
 
 CREATE TABLE favourites (
-favourite_id BIGSERIAL PRIMARY KEY,
+favourite_id BIG SERIAL PRIMARY KEY,
 
 user_id BIGINT NOT NULL,
 
@@ -164,7 +164,7 @@ CONSTRAINT uq_favourites
 );
 
 CREATE TABLE reviews (
-review_id BIGSERIAL PRIMARY KEY,
+review_id BIG SERIAL PRIMARY KEY,
 
 booking_id BIGINT NOT NULL UNIQUE,
 
@@ -193,7 +193,7 @@ CONSTRAINT chk_rating
 );
 
 CREATE TABLE payments (
-    payment_id BIGSERIAL PRIMARY KEY,
+    payment_id BIG SERIAL PRIMARY KEY,
 
     booking_id BIGINT NOT NULL UNIQUE,
 

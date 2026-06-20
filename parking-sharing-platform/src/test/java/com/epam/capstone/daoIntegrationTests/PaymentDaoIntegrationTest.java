@@ -1,44 +1,47 @@
-package com.epam.capstone.dao;
+package com.epam.capstone.daoIntegrationTests;
 
+import com.epam.capstone.dao.BookingDao;
+import com.epam.capstone.dao.ParkingSpotDao;
+import com.epam.capstone.dao.PaymentDao;
+import com.epam.capstone.dao.UserDao;
 import com.epam.capstone.dao.impl.BookingDaoImpl;
 import com.epam.capstone.dao.impl.ParkingSpotDaoImpl;
-import com.epam.capstone.dao.impl.ReviewDaoImpl;
+import com.epam.capstone.dao.impl.PaymentDaoImpl;
 import com.epam.capstone.dao.impl.UserDaoImpl;
 import com.epam.capstone.model.Booking;
 import com.epam.capstone.model.ParkingSpot;
-import com.epam.capstone.model.Review;
+import com.epam.capstone.model.Payment;
 import com.epam.capstone.model.User;
-import com.epam.capstone.model.enums.BookingStatus;
-import com.epam.capstone.model.enums.ParkingSpotStatus;
-import com.epam.capstone.model.enums.UserRole;
-import com.epam.capstone.model.enums.UserStatus;
+import com.epam.capstone.model.enums.*;
 import com.epam.capstone.pool.ConnectionPool;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class ReviewDaoIntegrationTest {
+public class PaymentDaoIntegrationTest {
     public static void main(String[] args) {
 
-        ConnectionPool pool = ConnectionPool.getInstance();
+        ConnectionPool pool =
+                ConnectionPool.getInstance();
 
-        UserDao userDao = new UserDaoImpl(pool);
+        UserDao userDao =
+                new UserDaoImpl(pool);
 
-        ParkingSpotDao parkingSpotDao = new ParkingSpotDaoImpl(pool);
+        ParkingSpotDao parkingSpotDao =
+                new ParkingSpotDaoImpl(pool);
 
-        BookingDao bookingDao = new BookingDaoImpl(pool);
+        BookingDao bookingDao =
+                new BookingDaoImpl(pool);
 
-        ReviewDao reviewDao = new ReviewDaoImpl(pool);
+        PaymentDao paymentDao =
+                new PaymentDaoImpl(pool);
 
-        /*
-         * OWNER
-         */
         User owner = new User(
                 null,
                 UserRole.OWNER,
-                "Review Owner",
-                "review.owner@mail.com",
-                "+77001111111",
+                "Payment Owner",
+                "payment.owner2@mail.com",
+                "+77075659917",
                 "hash123",
                 UserStatus.ACTIVE,
                 null
@@ -46,15 +49,12 @@ public class ReviewDaoIntegrationTest {
 
         owner = userDao.save(owner);
 
-        /*
-         * DRIVER
-         */
         User driver = new User(
                 null,
                 UserRole.DRIVER,
-                "Review Driver",
-                "review.driver@mail.com",
-                "+77002222222",
+                "Payment Driver",
+                "payment.driver3@mail.com",
+                "+77002279212",
                 "hash123",
                 UserStatus.ACTIVE,
                 null
@@ -62,17 +62,14 @@ public class ReviewDaoIntegrationTest {
 
         driver = userDao.save(driver);
 
-        /*
-         * PARKING SPOT
-         */
         ParkingSpot spot =
                 new ParkingSpot(
                         null,
                         owner,
-                        "Review Spot",
+                        "Payment Spot",
                         "Almaty",
                         "Test parking spot",
-                        new BigDecimal("1000"),
+                        new BigDecimal("1500"),
                         ParkingSpotStatus.AVAILABLE,
                         new BigDecimal("43.238949"),
                         new BigDecimal("76.889709"),
@@ -81,9 +78,6 @@ public class ReviewDaoIntegrationTest {
 
         spot = parkingSpotDao.save(spot);
 
-        /*
-         * BOOKING
-         */
         Booking booking =
                 new Booking(
                         null,
@@ -91,39 +85,37 @@ public class ReviewDaoIntegrationTest {
                         spot,
                         LocalDateTime.now(),
                         LocalDateTime.now().plusHours(2),
-                        new BigDecimal("2000"),
+                        new BigDecimal("3000"),
                         BookingStatus.CONFIRMED,
                         null
                 );
 
         booking = bookingDao.save(booking);
 
-        /*
-         * REVIEW
-         */
-        Review review =
-                new Review(
+        Payment payment =
+                new Payment(
                         null,
                         booking,
-                        driver,
-                        5,
-                        "Excellent parking spot",
+                        new BigDecimal("3000"),
+                        PaymentMethod.CARD,
+                        PaymentStatus.PENDING,
+                        "TXN-" + System.currentTimeMillis(),
                         null
                 );
 
         System.out.println("=== SAVE ===");
 
-        review = reviewDao.save(review);
+        payment = paymentDao.save(payment);
 
-        System.out.println(review);
+        System.out.println(payment);
 
         System.out.println();
 
         System.out.println("=== FIND BY ID ===");
 
         System.out.println(
-                reviewDao.findById(
-                        review.getReviewId()
+                paymentDao.findById(
+                        payment.getPaymentId()
                 )
         );
 
@@ -132,17 +124,27 @@ public class ReviewDaoIntegrationTest {
         System.out.println("=== FIND BY BOOKING ID ===");
 
         System.out.println(
-                reviewDao.findByBookingId(
+                paymentDao.findByBookingId(
                         booking.getBookingId()
                 )
         );
 
         System.out.println();
 
-        System.out.println("=== FIND BY AUTHOR ID ===");
+        System.out.println("=== FIND BY TRANSACTION ID ===");
 
-        reviewDao.findByAuthorId(
-                        driver.getUserId(),
+        System.out.println(
+                paymentDao.findByTransactionId(
+                        payment.getTransactionId()
+                )
+        );
+
+        System.out.println();
+
+        System.out.println("=== FIND BY STATUS ===");
+
+        paymentDao.findByStatus(
+                        PaymentStatus.PENDING,
                         1,
                         10
                 )
@@ -152,29 +154,28 @@ public class ReviewDaoIntegrationTest {
 
         System.out.println("=== FIND ALL ===");
 
-        reviewDao.findAll(1, 10)
+        paymentDao.findAll(1, 10)
                 .forEach(System.out::println);
 
         System.out.println();
 
         System.out.println("=== UPDATE ===");
 
-        review.setRating(4);
-        review.setComment(
-                "Good parking spot"
+        payment.setStatus(
+                PaymentStatus.PAID
         );
 
-        review = reviewDao.update(review);
+        payment = paymentDao.update(payment);
 
-        System.out.println(review);
+        System.out.println(payment);
 
         System.out.println();
 
         System.out.println("=== DELETE ===");
 
         boolean deleted =
-                reviewDao.deleteById(
-                        review.getReviewId()
+                paymentDao.deleteById(
+                        payment.getPaymentId()
                 );
 
         System.out.println(deleted);
@@ -184,8 +185,8 @@ public class ReviewDaoIntegrationTest {
         System.out.println("=== CHECK DELETED ===");
 
         System.out.println(
-                reviewDao.findById(
-                        review.getReviewId()
+                paymentDao.findById(
+                        payment.getPaymentId()
                 )
         );
     }
