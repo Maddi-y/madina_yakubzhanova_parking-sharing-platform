@@ -3,7 +3,6 @@ package com.epam.capstone.service;
 import com.epam.capstone.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 

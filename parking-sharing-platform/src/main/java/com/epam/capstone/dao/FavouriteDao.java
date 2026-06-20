@@ -1,6 +1,5 @@
 package com.epam.capstone.dao;
 
-import com.epam.capstone.dao.impl.BaseDao;
 import com.epam.capstone.model.Favourite;
 
 import java.util.List;
