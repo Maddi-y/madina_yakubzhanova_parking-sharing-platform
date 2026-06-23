@@ -2,18 +2,24 @@ package com.epam.capstone.service.impl;
 
 
 import com.epam.capstone.dao.UserDao;
+import com.epam.capstone.dto.UserRegistrationDto;
+import com.epam.capstone.exception.RegistrationValidationException;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.User;
+import com.epam.capstone.model.enums.UserRole;
 import com.epam.capstone.model.enums.UserStatus;
 import com.epam.capstone.security.PasswordEncoder;
 import com.epam.capstone.service.UserService;
 import com.epam.capstone.validation.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -43,10 +49,16 @@ public class UserServiceImpl implements UserService {
         userValidator.validatePassword(user.getPasswordHash());
 
         if (userDao.existsByEmail(user.getEmail())) {
-            LOGGER.warn(
-                    "Registration attempt with existing email: {}", user.getEmail());
+            LOGGER.warn("Registration attempt with existing email: {}", user.getEmail());
             throw new ValidationException("User with email '%s' already exists".formatted(user.getEmail()));
         }
+
+        if (userDao.existsByPhone(user.getPhone())) {
+            LOGGER.warn("Registration attempt with existing phone: {}", user.getPhone());
+
+            throw new ValidationException("User with phone '%s' already exists".formatted(user.getPhone()));
+        }
+
 
         String encodedPassword = passwordEncoder.encode(user.getPasswordHash());
 
@@ -60,6 +72,88 @@ public class UserServiceImpl implements UserService {
         );
 
         return savedUser;
+    }
+
+    @Override
+    public User register(UserRegistrationDto dto) {
+
+        if (dto == null) {
+            throw new ValidationException("Registration data must not be null");
+        }
+
+        dto.setNameError(null);
+        dto.setEmailError(null);
+        dto.setPhoneError(null);
+        dto.setPasswordError(null);
+
+        boolean hasErrors = false;
+
+        try {
+            userValidator.validateName(dto.getName());
+        } catch (ValidationException e) {
+            dto.setNameError(e.getMessage());
+            hasErrors = true;
+        }
+
+        try {
+            userValidator.validateEmail(dto.getEmail());
+        } catch (ValidationException e) {
+            dto.setEmailError(e.getMessage());
+            hasErrors = true;
+        }
+
+        try {
+            userValidator.validatePhone(dto.getPhone());
+        } catch (ValidationException e) {
+            dto.setPhoneError(e.getMessage());
+            hasErrors = true;
+        }
+
+        try {
+            userValidator.validatePassword(dto.getPassword());
+        } catch (ValidationException e) {
+            dto.setPasswordError(e.getMessage());
+            hasErrors = true;
+        }
+
+        if (dto.getEmail() != null
+                && !dto.getEmail().isBlank()
+                && userDao.existsByEmail(dto.getEmail().trim().toLowerCase())) {
+
+            LOGGER.warn("Registration attempt with existing email: {}", dto.getEmail());
+
+            dto.setEmailError(
+                    "User with email '%s' already exists".formatted(dto.getEmail()));
+
+            hasErrors = true;
+        }
+
+        if (dto.getPhone() != null
+                && !dto.getPhone().isBlank()
+                && userDao.existsByPhone(dto.getPhone())) {
+
+            LOGGER.warn("Registration attempt with existing phone: {}", dto.getPhone());
+
+            dto.setPhoneError("User with phone '%s' already exists".formatted(dto.getPhone()));
+
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
+            throw new RegistrationValidationException(dto);
+        }
+
+        User user = new User();
+
+        user.setRole(UserRole.DRIVER);
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail().trim().toLowerCase());
+        user.setPhone(dto.getPhone());
+        user.setPasswordHash(dto.getPassword());
+        user.setStatus(UserStatus.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+
+        return register(user);
     }
 
     @Override

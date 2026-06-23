@@ -37,8 +37,8 @@ public class FavouriteDaoIntegrationTest {
                 null,
                 UserRole.OWNER,
                 "Favourite Owner",
-                "fav.owner@mail.com",
-                "+77001110000",
+                "fav.owner5@mail.com",
+                "+77001822655",
                 "hash123",
                 UserStatus.ACTIVE,
                 null

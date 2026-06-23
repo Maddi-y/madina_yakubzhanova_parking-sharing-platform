@@ -8,12 +8,14 @@ import com.epam.capstone.model.enums.UserStatus;
 import com.epam.capstone.pool.ConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class UserDaoImpl extends BaseDao implements UserDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -49,6 +51,14 @@ public class UserDaoImpl extends BaseDao implements UserDao {
                 WHERE email = ?
             )
             """;
+
+    private static final String EXISTS_BY_PHONE = """
+        SELECT EXISTS(
+            SELECT 1
+            FROM users
+            WHERE phone = ?
+        )
+        """;
 
     private static final String FIND_ALL = """
             SELECT *
@@ -278,5 +288,27 @@ public class UserDaoImpl extends BaseDao implements UserDao {
                 }
             }
         }, "Failed to check email existence: " + email);
+    }
+
+    @Override
+    public boolean existsByPhone(String phone) {
+
+        return execute(connection -> {
+
+            try (PreparedStatement statement =
+                         connection.prepareStatement(EXISTS_BY_PHONE)) {
+
+                statement.setString(1, phone);
+
+                try (ResultSet rs = statement.executeQuery()) {
+
+                    if (rs.next()) {
+                        return rs.getBoolean(1);
+                    }
+
+                    return false;
+                }
+            }
+        }, "Failed to check phone existence");
     }
 }

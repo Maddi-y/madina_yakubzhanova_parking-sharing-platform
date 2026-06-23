@@ -2,9 +2,11 @@ package com.epam.capstone.validation;
 
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.User;
+import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
+@Component
 public class UserValidator implements Validator<User> {
 
     private static final Pattern EMAIL_PATTERN =
@@ -30,7 +32,7 @@ public class UserValidator implements Validator<User> {
         validateStatus(user);
     }
 
-    private void validateName(String name) {
+    public void validateName(String name) {
 
         if (name == null || name.isBlank()) {
             throw new ValidationException("Name is required");
@@ -45,7 +47,7 @@ public class UserValidator implements Validator<User> {
         }
     }
 
-    private void validateEmail(String email) {
+    public void validateEmail(String email) {
 
         if (email == null || email.isBlank()) {
             throw new ValidationException("Email is required");
@@ -56,7 +58,7 @@ public class UserValidator implements Validator<User> {
         }
     }
 
-    private void validatePhone(String phone) {
+    public void validatePhone(String phone) {
 
         if (phone == null || phone.isBlank()) {
             throw new ValidationException("Phone is required");

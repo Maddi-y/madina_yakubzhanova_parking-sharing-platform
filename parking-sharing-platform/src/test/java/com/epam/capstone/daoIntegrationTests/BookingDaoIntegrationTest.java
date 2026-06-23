@@ -39,8 +39,8 @@ public class BookingDaoIntegrationTest {
                 null,
                 UserRole.DRIVER,
                 "Test Driver",
-                "driver3@mail.com",
-                "+77003118246",
+                "driver8@mail.com",
+                "+77053158246",
                 "hash123",
                 UserStatus.ACTIVE,
                 null
@@ -52,8 +52,8 @@ public class BookingDaoIntegrationTest {
                 null,
                 UserRole.OWNER,
                 "Test Owner",
-                "owner@mail.com",
-                "+77002223344",
+                "owner6@mail.com",
+                "+77082463344",
                 "hash123",
                 UserStatus.ACTIVE,
                 null

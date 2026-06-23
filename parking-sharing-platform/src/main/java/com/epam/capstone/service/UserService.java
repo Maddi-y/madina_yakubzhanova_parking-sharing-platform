@@ -1,10 +1,13 @@
 package com.epam.capstone.service;
 
+import com.epam.capstone.dto.UserRegistrationDto;
 import com.epam.capstone.model.User;
 
 import java.util.List;
 
 public interface UserService {
+
+    User register(UserRegistrationDto dto);
 
     User register(User user);
 

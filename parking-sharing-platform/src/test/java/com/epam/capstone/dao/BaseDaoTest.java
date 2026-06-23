@@ -12,9 +12,4 @@ public abstract class BaseDaoTest {
     static void initPool() {
         pool = ConnectionPool.getInstance();
     }
-
-    @AfterAll
-    static void shutdownPool() {
-        pool.shutdown();
-    }
 }

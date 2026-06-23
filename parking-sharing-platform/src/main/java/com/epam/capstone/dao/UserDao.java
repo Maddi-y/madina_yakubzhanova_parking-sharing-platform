@@ -9,4 +9,5 @@ public interface UserDao extends GenericDao<User, Long> {
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+    boolean existsByPhone(String phone);
 }

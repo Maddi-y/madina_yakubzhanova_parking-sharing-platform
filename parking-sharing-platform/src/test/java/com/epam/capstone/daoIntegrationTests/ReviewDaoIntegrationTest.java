@@ -41,8 +41,8 @@ public class ReviewDaoIntegrationTest {
                 null,
                 UserRole.OWNER,
                 "Review Owner",
-                "review.owner@mail.com",
-                "+77001111111",
+                "review.owner1@mail.com",
+                "+77091546632",
                 "hash123",
                 UserStatus.ACTIVE,
                 null
@@ -57,8 +57,8 @@ public class ReviewDaoIntegrationTest {
                 null,
                 UserRole.DRIVER,
                 "Review Driver",
-                "review.driver@mail.com",
-                "+77002222222",
+                "review.driver2@mail.com",
+                "+77014425888",
                 "hash123",
                 UserStatus.ACTIVE,
                 null

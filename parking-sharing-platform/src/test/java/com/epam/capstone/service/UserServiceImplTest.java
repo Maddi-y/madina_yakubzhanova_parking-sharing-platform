@@ -2,6 +2,7 @@ package com.epam.capstone.service;
 
 
 import com.epam.capstone.dao.UserDao;
+import com.epam.capstone.dto.UserRegistrationDto;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.model.User;
@@ -91,7 +92,18 @@ public class UserServiceImplTest {
     @Test
     void register_ShouldThrowException_WhenUserIsNull() {
 
-        assertThrows(ValidationException.class, () -> userService.register(null));
+        assertThrows(ValidationException.class, () ->
+                userService.register((UserRegistrationDto) null));
+
+        verifyNoInteractions(userDao);
+    }
+
+    @Test
+    void registerUser_ShouldThrowException_WhenUserIsNull() {
+
+        assertThrows(ValidationException.class, () ->
+                userService.register((User) null)
+        );
 
         verifyNoInteractions(userDao);
     }

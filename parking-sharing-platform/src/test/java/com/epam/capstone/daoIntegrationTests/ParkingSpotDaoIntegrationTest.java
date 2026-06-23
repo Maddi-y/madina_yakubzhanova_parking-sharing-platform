@@ -33,8 +33,8 @@ public class ParkingSpotDaoIntegrationTest {
                 null,
                 UserRole.OWNER,
                 "Parking Owner",
-                "owner@test.com",
-                "+77001112233",
+                "owner2@test.com",
+                "+77036998233",
                 "hashedPassword",
                 UserStatus.ACTIVE,
                 LocalDateTime.now()

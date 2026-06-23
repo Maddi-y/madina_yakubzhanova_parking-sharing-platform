@@ -2,6 +2,7 @@ package com.epam.capstone.pool;
 
 import com.epam.capstone.config.ApplicationProperties;
 import com.epam.capstone.exception.ConnectionPoolException;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,6 +10,7 @@ import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+@Component
 public class ConnectionPool {
 
     private static final String URL = ApplicationProperties.getProperty("db.url");
@@ -24,6 +26,8 @@ public class ConnectionPool {
 
     private final BlockingQueue<Connection> availableConnections;
     private final BlockingQueue<Connection> usedConnections;
+
+    private volatile boolean closed = false;
 
     private ConnectionPool() {
         try {
@@ -54,17 +58,22 @@ public class ConnectionPool {
     }
 
     public Connection getConnection() {
+
+        if (closed) {
+            throw new ConnectionPoolException("Connection pool is already closed");
+        }
+
         try {
             Connection connection = availableConnections.take();
             usedConnections.offer(connection);
+
             return connection;
 
         } catch (InterruptedException e) {
+
             Thread.currentThread().interrupt();
             throw new ConnectionPoolException(
-                    "Failed to get connection from pool",
-                    e
-            );
+                    "Failed to get connection from pool", e);
         }
     }
 
@@ -77,7 +86,14 @@ public class ConnectionPool {
         availableConnections.offer(connection);
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
+
+        if (closed) {
+            return;
+        }
+
+        closed = true;
+
         try {
             for (Connection connection : availableConnections) {
                 connection.close();
@@ -87,11 +103,12 @@ public class ConnectionPool {
                 connection.close();
             }
 
+            availableConnections.clear();
+            usedConnections.clear();
+
         } catch (SQLException e) {
             throw new ConnectionPoolException(
-                    "Failed to close connections",
-                    e
-            );
+                    "Failed to close connections", e);
         }
     }
 

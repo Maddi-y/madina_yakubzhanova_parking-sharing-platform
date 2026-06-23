@@ -40,8 +40,8 @@ public class PaymentDaoIntegrationTest {
                 null,
                 UserRole.OWNER,
                 "Payment Owner",
-                "payment.owner2@mail.com",
-                "+77075659917",
+                "payment.owner3@mail.com",
+                "+77055659917",
                 "hash123",
                 UserStatus.ACTIVE,
                 null
@@ -53,8 +53,8 @@ public class PaymentDaoIntegrationTest {
                 null,
                 UserRole.DRIVER,
                 "Payment Driver",
-                "payment.driver3@mail.com",
-                "+77002279212",
+                "payment.driver4@mail.com",
+                "+77092272212",
                 "hash123",
                 UserStatus.ACTIVE,
                 null
