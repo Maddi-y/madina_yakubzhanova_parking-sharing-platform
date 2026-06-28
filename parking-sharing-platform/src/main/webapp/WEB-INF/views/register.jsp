@@ -29,7 +29,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">
-                            Name
+                            Name *
                         </label>
 
                         <input type="text"
@@ -44,7 +44,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">
-                            Email
+                            Email *
                         </label>
 
                         <input type="email"
@@ -59,7 +59,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">
-                            Phone
+                            Phone *
                         </label>
 
                         <input type="text"
@@ -74,7 +74,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">
-                            Password
+                            Password *
                         </label>
 
                         <input type="password"
@@ -90,6 +90,10 @@
                             class="btn btn-primary w-100">
                         Register
                     </button>
+
+                    <div class="alert alert-light mt-2 p-2 text-center">
+                        * Required fields
+                    </div>
 
                 </form>
 

@@ -228,3 +228,27 @@ CREATE TABLE payments (
             )
         )
 );
+
+CREATE TABLE password_reset_token
+(
+    token_id BIG SERIAL PRIMARY KEY,
+
+    user_id BIGINT NOT NULL
+        REFERENCES users(user_id),
+
+    token VARCHAR(255) NOT NULL UNIQUE,
+
+    expires_at TIMESTAMP NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    used BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+/*
+token_id — PK
+user_id — владелец токена
+token — UUID
+expires_at — например +30 минут
+created_at
+used — использован ли токен */

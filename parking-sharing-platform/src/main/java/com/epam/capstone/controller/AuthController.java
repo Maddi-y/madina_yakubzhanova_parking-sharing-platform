@@ -4,7 +4,9 @@ import com.epam.capstone.dto.UserLoginDto;
 import com.epam.capstone.dto.UserRegistrationDto;
 import com.epam.capstone.exception.ValidationException;
 import com.epam.capstone.exception.RegistrationValidationException;
+import com.epam.capstone.model.User;
 import com.epam.capstone.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,12 +28,38 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@ModelAttribute("loginDto") UserLoginDto loginDto) {
+    public String login(@ModelAttribute("loginDto") UserLoginDto loginDto, Model model, HttpSession session) {
 
-        System.out.println("EMAIL = " + loginDto.getEmail());
-        System.out.println("PASSWORD = " + loginDto.getPassword());
+        try {
+            User user = userService.authenticate(
+                    loginDto.getEmail(),
+                    loginDto.getPassword());
 
-        return "redirect:/login";
+            session.setAttribute("user", user);
+
+            return "redirect:/";
+
+        } catch (ValidationException e) {
+
+            String message = e.getMessage();
+
+            if (message.contains("Email")) {
+
+                loginDto.setEmailError(message);
+
+            } else if (message.contains("Password")) {
+
+                loginDto.setPasswordError(message);
+
+            } else {
+
+                loginDto.setCommonError(message);
+            }
+
+            model.addAttribute("loginDto", loginDto);
+
+            return "login";
+        }
     }
 
     @GetMapping("/register")
@@ -55,6 +83,14 @@ public class AuthController {
 
             return "register";
         }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+
+        session.invalidate();
+
+        return "redirect:/";
     }
 
 

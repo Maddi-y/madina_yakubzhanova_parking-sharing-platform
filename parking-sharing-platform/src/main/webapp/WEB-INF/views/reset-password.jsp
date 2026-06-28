@@ -3,7 +3,7 @@
 <html>
 <head>
 
-    <title>Login</title>
+    <title>Reset Password</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet">
@@ -16,36 +16,39 @@
 
     <div class="row justify-content-center">
 
-        <div class="col-md-6">
+        <div class="col-md-5">
 
             <div class="card shadow">
 
                 <div class="card-body">
 
                     <h2 class="text-center mb-4">
-                        Login
+                        Reset Password
                     </h2>
 
                     <div class="text-danger text-center mb-3">
-                        ${loginDto.commonError}
+                        ${resetPasswordDto.commonError}
                     </div>
 
-                    <form action="${pageContext.request.contextPath}/login"
+                    <form action="${pageContext.request.contextPath}/reset-password"
                           method="post">
+
+                        <input type="hidden"
+                               name="token"
+                               value="${resetPasswordDto.token}">
 
                         <div class="mb-3">
 
                             <label class="form-label">
-                                Email *
+                                New Password *
                             </label>
 
-                            <input type="email"
+                            <input type="password"
                                    class="form-control"
-                                   name="email"
-                                   value="${loginDto.email}">
+                                   name="newPassword">
 
-                            <div class="text-danger">
-                                ${loginDto.emailError}
+                            <div class="invalid-feedback d-block">
+                                ${resetPasswordDto.newPasswordError}
                             </div>
 
                         </div>
@@ -53,44 +56,32 @@
                         <div class="mb-3">
 
                             <label class="form-label">
-                                Password *
+                                Confirm Password *
                             </label>
 
                             <input type="password"
                                    class="form-control"
-                                   name="password">
+                                   name="confirmPassword">
 
-                            <div class="text-danger">
-                                ${loginDto.passwordError}
+                            <div class="invalid-feedback d-block">
+                                ${resetPasswordDto.confirmPasswordError}
                             </div>
 
                         </div>
 
                         <button type="submit"
-                                    class="btn btn-primary w-100">
-                            Login
+                                class="btn btn-success w-100">
+
+                            Reset Password
+
                         </button>
-
-                        <div class="text-center mt-3">
-
-                            <a href="${pageContext.request.contextPath}/forgot-password">
-                                Forgot password?
-                            </a>
-
-                        </div>
-
-                        <div class="alert alert-light mt-2 p-2 text-center">
-                            * Required fields
-                        </div>
 
                     </form>
 
                     <div class="text-center mt-3">
 
-                        <a href="${pageContext.request.contextPath}/register">
-
-                            Don't have an account? Register
-
+                        <a href="${pageContext.request.contextPath}/login">
+                            Back to Login
                         </a>
 
                     </div>
@@ -106,4 +97,5 @@
 </div>
 
 </body>
+
 </html>

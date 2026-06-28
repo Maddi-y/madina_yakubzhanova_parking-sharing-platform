@@ -76,14 +76,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- JSTL -->
-
-    <dependency>
-      <groupId>org.glassfish.web</groupId>
-      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
-      <version>3.0.1</version>
-    </dependency>
-
     <!-- Validation -->
 
     <dependency>

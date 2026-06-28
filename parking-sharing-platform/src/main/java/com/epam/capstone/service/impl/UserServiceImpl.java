@@ -2,7 +2,9 @@ package com.epam.capstone.service.impl;
 
 
 import com.epam.capstone.dao.UserDao;
+import com.epam.capstone.dto.UserProfileDto;
 import com.epam.capstone.dto.UserRegistrationDto;
+import com.epam.capstone.exception.ProfileValidationException;
 import com.epam.capstone.exception.RegistrationValidationException;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
@@ -217,12 +219,11 @@ public class UserServiceImpl implements UserService {
 
         String normalizedEmail = email.trim().toLowerCase();
 
-        return userDao.findByEmail(normalizedEmail)
-                .orElseThrow(() -> {
+        return userDao.findByEmail(normalizedEmail).orElseThrow(() -> {
                     LOGGER.warn("User not found. Email={}", normalizedEmail);
 
                     return new ServiceException("User not found");
-                });
+        });
     }
 
     @Override
@@ -257,17 +258,18 @@ public class UserServiceImpl implements UserService {
 
             LOGGER.warn(
                     "Attempt to update deleted user. ID={}",
-                    user.getUserId()
-            );
+                    user.getUserId());
 
             throw new ValidationException(
-                    "Deleted user cannot be updated"
-            );
+                    "Deleted user cannot be updated");
         }
 
-        String normalizedEmail = user.getEmail().trim().toLowerCase();
+        String normalizedEmail =
+                user.getEmail().trim().toLowerCase();
 
-        if (!existingUser.getEmail().equalsIgnoreCase(normalizedEmail) && userDao.existsByEmail(normalizedEmail)) {
+        if (!existingUser.getEmail().equalsIgnoreCase(normalizedEmail)
+                && userDao.existsByEmail(normalizedEmail)) {
+
             throw new ValidationException("Email already exists");
         }
 
@@ -275,10 +277,77 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = userDao.update(user);
 
-        LOGGER.info(
-                "User updated successfully. ID={}", updatedUser.getUserId());
+        LOGGER.info("User updated successfully. ID={}", updatedUser.getUserId());
 
         return updatedUser;
+    }
+
+    @Override
+    public User update(UserProfileDto dto, Long userId) {
+
+        if (dto == null) {
+            throw new ValidationException("Profile data must not be null");
+        }
+
+        if (userId == null || userId <= 0) {
+            throw new ValidationException("Invalid user id");
+        }
+
+        dto.setNameError(null);
+        dto.setEmailError(null);
+        dto.setPhoneError(null);
+        dto.setCommonError(null);
+
+        boolean hasErrors = false;
+
+        try {
+            userValidator.validateName(dto.getName());
+        } catch (ValidationException e) {
+            dto.setNameError(e.getMessage());
+            hasErrors = true;
+        }
+
+        try {
+            userValidator.validateEmail(dto.getEmail());
+        } catch (ValidationException e) {
+            dto.setEmailError(e.getMessage());
+            hasErrors = true;
+        }
+
+        try {
+            userValidator.validatePhone(dto.getPhone());
+        } catch (ValidationException e) {
+            dto.setPhoneError(e.getMessage());
+            hasErrors = true;
+        }
+
+        User existingUser = findById(userId);
+
+        String normalizedEmail = dto.getEmail().trim().toLowerCase();
+
+        if (!existingUser.getEmail().equalsIgnoreCase(normalizedEmail) && userDao.existsByEmail(normalizedEmail)) {
+
+            dto.setEmailError("User with email '%s' already exists".formatted(dto.getEmail()));
+
+            hasErrors = true;
+        }
+
+        if (!existingUser.getPhone().equals(dto.getPhone()) && userDao.existsByPhone(dto.getPhone())) {
+
+            dto.setPhoneError("User with phone '%s' already exists".formatted(dto.getPhone()));
+
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
+            throw new ProfileValidationException(dto);
+        }
+
+        existingUser.setName(dto.getName());
+        existingUser.setEmail(normalizedEmail);
+        existingUser.setPhone(dto.getPhone());
+
+        return update(existingUser);
     }
 
     @Override
@@ -342,6 +411,32 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userDao.update(user);
 
         LOGGER.info("Password changed successfully. User ID={}", userId);
+
+        return updatedUser;
+    }
+
+    @Override
+    public User resetPassword(Long userId, String newPassword) {
+
+        if (userId == null || userId <= 0) {
+            throw new ValidationException("Invalid user id");
+        }
+
+        User user = findById(userId);
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new ValidationException("User account is not active");
+        }
+
+        if (passwordEncoder.matches(newPassword, user.getPasswordHash())) {
+            throw new ValidationException("New password must be different from current password");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+
+        User updatedUser = userDao.update(user);
+
+        LOGGER.info("Password reset successfully. User ID={}", userId);
 
         return updatedUser;
     }
