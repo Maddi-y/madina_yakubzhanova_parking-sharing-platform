@@ -244,11 +244,3 @@ CREATE TABLE password_reset_token
 
     used BOOLEAN NOT NULL DEFAULT FALSE
 );
-
-/*
-token_id — PK
-user_id — владелец токена
-token — UUID
-expires_at — например +30 минут
-created_at
-used — использован ли токен */

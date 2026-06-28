@@ -1,7 +1,6 @@
 package com.epam.capstone.dao;
 
 import com.epam.capstone.pool.ConnectionPool;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 public abstract class BaseDaoTest {

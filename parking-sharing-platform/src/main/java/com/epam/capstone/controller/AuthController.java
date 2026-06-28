@@ -44,15 +44,12 @@ public class AuthController {
             String message = e.getMessage();
 
             if (message.contains("Email")) {
-
                 loginDto.setEmailError(message);
 
             } else if (message.contains("Password")) {
-
                 loginDto.setPasswordError(message);
 
             } else {
-
                 loginDto.setCommonError(message);
             }
 

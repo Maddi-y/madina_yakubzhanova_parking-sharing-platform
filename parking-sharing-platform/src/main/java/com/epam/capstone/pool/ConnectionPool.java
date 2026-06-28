@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-@Component
+
 public class ConnectionPool {
 
     private static final String URL = ApplicationProperties.getProperty("db.url");
@@ -29,7 +29,7 @@ public class ConnectionPool {
 
     private volatile boolean closed = false;
 
-    private ConnectionPool() {
+    public ConnectionPool() {
         try {
             Class.forName(DRIVER);
 
@@ -65,15 +65,29 @@ public class ConnectionPool {
 
         try {
             Connection connection = availableConnections.take();
+
+            if (!connection.isValid(2)) { //живое ли соединение в теч 2 секунд?
+                connection.close();
+
+                connection = DriverManager.getConnection(
+                        URL,
+                        USERNAME,
+                        PASSWORD
+                );
+            }
+
             usedConnections.offer(connection);
 
             return connection;
 
         } catch (InterruptedException e) {
-
             Thread.currentThread().interrupt();
+
+            throw new ConnectionPoolException("Failed to get connection from pool", e);
+
+        } catch (SQLException e) {
             throw new ConnectionPoolException(
-                    "Failed to get connection from pool", e);
+                    "Failed to validate database connection", e);
         }
     }
 
@@ -85,6 +99,7 @@ public class ConnectionPool {
         usedConnections.remove(connection);
         availableConnections.offer(connection);
     }
+
 
     public synchronized void shutdown() {
 

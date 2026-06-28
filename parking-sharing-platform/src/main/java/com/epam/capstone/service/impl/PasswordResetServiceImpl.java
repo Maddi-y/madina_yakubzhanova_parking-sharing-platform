@@ -8,7 +8,6 @@ import com.epam.capstone.model.User;
 import com.epam.capstone.service.PasswordResetService;
 import com.epam.capstone.service.PasswordResetTokenService;
 import com.epam.capstone.service.UserService;
-import com.epam.capstone.validation.PasswordValidator;
 import com.epam.capstone.validation.ResetPasswordValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

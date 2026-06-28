@@ -41,28 +41,19 @@ public abstract class BaseDao {
         T apply(Connection connection) throws SQLException;
     }
 
-    protected <T> T execute(
-            SqlFunction<T> function,
-            String errorMessage
-    ) {
+    protected <T> T execute(SqlFunction<T> function, String errorMessage) {
 
         Connection connection = null;
 
         try {
-
             connection = getConnection();
 
             return function.apply(connection);
 
         } catch (SQLException e) {
-
-            throw new DaoException(
-                    errorMessage,
-                    e
-            );
+            throw new DaoException(errorMessage, e);
 
         } finally {
-
             releaseConnection(connection);
         }
     }
