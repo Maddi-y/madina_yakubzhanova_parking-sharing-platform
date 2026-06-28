@@ -3,7 +3,6 @@ package com.epam.capstone.dao;
 import com.epam.capstone.dao.impl.FavouriteDaoImpl;
 import com.epam.capstone.dao.impl.ParkingSpotDaoImpl;
 import com.epam.capstone.dao.impl.UserDaoImpl;
-import com.epam.capstone.model.Favourite;
 import com.epam.capstone.model.ParkingSpot;
 import com.epam.capstone.model.User;
 import com.epam.capstone.model.enums.*;

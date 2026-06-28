@@ -114,7 +114,7 @@ public class UserDaoImpl extends BaseDao implements UserDao {
                 statement.setString(2, entity.getName());
                 statement.setString(3, entity.getEmail());
                 statement.setString(4, entity.getPhone());
-                statement.setString(5, entity.getPasswordHash());
+                statement.setString(5, entity.getPassword());
                 statement.setString(6, entity.getStatus().name());
 
                 int affectedRows = statement.executeUpdate();
@@ -201,7 +201,7 @@ public class UserDaoImpl extends BaseDao implements UserDao {
                 statement.setString(2, entity.getName());
                 statement.setString(3, entity.getEmail());
                 statement.setString(4, entity.getPhone());
-                statement.setString(5, entity.getPasswordHash());
+                statement.setString(5, entity.getPassword());
                 statement.setString(6, entity.getStatus().name());
                 statement.setLong(7, entity.getUserId());
 

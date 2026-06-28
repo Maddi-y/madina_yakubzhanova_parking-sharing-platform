@@ -46,7 +46,7 @@ public class UserServiceImplTest {
         user.setName("Test User");
         user.setEmail("test@mail.com");
         user.setPhone("+77001234567");
-        user.setPasswordHash("Password123");
+        user.setPassword("Password123");
         user.setRole(UserRole.DRIVER);
         user.setStatus(UserStatus.ACTIVE);
 
@@ -68,7 +68,7 @@ public class UserServiceImplTest {
 
         assertNotNull(result);
 
-        assertEquals("encoded-password", result.getPasswordHash());
+        assertEquals("encoded-password", result.getPassword());
 
         verify(userValidator).validate(user);
 
@@ -129,7 +129,7 @@ public class UserServiceImplTest {
 
         User user = buildUser();
 
-        user.setPasswordHash("encoded-password");
+        user.setPassword("encoded-password");
 
         when(userDao.findByEmail("test@mail.com")).thenReturn(java.util.Optional.of(user));
 
@@ -167,7 +167,7 @@ public class UserServiceImplTest {
 
         User user = buildUser();
 
-        user.setPasswordHash("encoded-password");
+        user.setPassword("encoded-password");
 
         when(userDao.findByEmail("test@mail.com")).thenReturn(java.util.Optional.of(user));
 
@@ -186,7 +186,7 @@ public class UserServiceImplTest {
         User user = buildUser();
 
         user.setStatus(UserStatus.BLOCKED);
-        user.setPasswordHash("encoded-password");
+        user.setPassword("encoded-password");
 
         when(userDao.findByEmail("test@mail.com")).thenReturn(java.util.Optional.of(user));
 
@@ -205,7 +205,7 @@ public class UserServiceImplTest {
         User user = buildUser();
 
         user.setStatus(UserStatus.DELETED);
-        user.setPasswordHash("encoded-password");
+        user.setPassword("encoded-password");
 
         when(userDao.findByEmail("test@mail.com")).thenReturn(java.util.Optional.of(user));
 
@@ -451,7 +451,7 @@ public class UserServiceImplTest {
 
         User user = buildUser();
 
-        user.setPasswordHash("encoded-old");
+        user.setPassword("encoded-old");
 
         when(userDao.findById(1L)).thenReturn(Optional.of(user));
 
@@ -463,7 +463,7 @@ public class UserServiceImplTest {
 
         User result = userService.changePassword(1L, "OldPassword123", "NewPassword123");
 
-        assertEquals("encoded-new", result.getPasswordHash());
+        assertEquals("encoded-new", result.getPassword());
 
         verify(userValidator).validatePassword("NewPassword123");
     }
@@ -474,7 +474,7 @@ public class UserServiceImplTest {
 
         User user = buildUser();
 
-        user.setPasswordHash("encoded-old");
+        user.setPassword("encoded-old");
 
         when(userDao.findById(1L)).thenReturn(Optional.of(user));
 
@@ -494,7 +494,7 @@ public class UserServiceImplTest {
 
         User user = buildUser();
 
-        user.setPasswordHash("encoded-old");
+        user.setPassword("encoded-old");
 
         when(userDao.findById(1L)).thenReturn(Optional.of(user));
 

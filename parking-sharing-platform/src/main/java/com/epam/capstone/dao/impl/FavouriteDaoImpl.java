@@ -2,7 +2,6 @@ package com.epam.capstone.dao.impl;
 
 import com.epam.capstone.dao.FavouriteDao;
 import com.epam.capstone.exception.DaoException;
-import com.epam.capstone.model.Favourite;
 import com.epam.capstone.model.ParkingSpot;
 import com.epam.capstone.model.User;
 import com.epam.capstone.pool.ConnectionPool;

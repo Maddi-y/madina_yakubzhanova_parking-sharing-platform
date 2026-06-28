@@ -2,46 +2,30 @@ package com.epam.capstone.model;
 
 import com.epam.capstone.model.enums.ParkingSpotStatus;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ParkingSpot {
 
     private Long spotId;
-    private User owner;
-    private String title;
-    private String address;
-    private String description;
-    private BigDecimal hourlyRate;
+    private Long parkingId;
+    private Integer spotNumber;
     private ParkingSpotStatus status;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
     private LocalDateTime createdAt;
 
     public ParkingSpot() {
     }
 
     public ParkingSpot(Long spotId,
-                       User owner,
-                       String title,
-                       String address,
-                       String description,
-                       BigDecimal hourlyRate,
+                       Long parkingId,
+                       Integer spotNumber,
                        ParkingSpotStatus status,
-                       BigDecimal latitude,
-                       BigDecimal longitude,
                        LocalDateTime createdAt) {
 
         this.spotId = spotId;
-        this.owner = owner;
-        this.title = title;
-        this.address = address;
-        this.description = description;
-        this.hourlyRate = hourlyRate;
+        this.parkingId = parkingId;
+        this.spotNumber = spotNumber;
         this.status = status;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.createdAt = createdAt;
     }
 
@@ -53,44 +37,20 @@ public class ParkingSpot {
         this.spotId = spotId;
     }
 
-    public User getOwner() {
-        return owner;
+    public Long getParkingId() {
+        return parkingId;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setParkingId(Long parkingId) {
+        this.parkingId = parkingId;
     }
 
-    public String getTitle() {
-        return title;
+    public Integer getSpotNumber() {
+        return spotNumber;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getHourlyRate() {
-        return hourlyRate;
-    }
-
-    public void setHourlyRate(BigDecimal hourlyRate) {
-        this.hourlyRate = hourlyRate;
+    public void setSpotNumber(Integer spotNumber) {
+        this.spotNumber = spotNumber;
     }
 
     public ParkingSpotStatus getStatus() {
@@ -99,22 +59,6 @@ public class ParkingSpot {
 
     public void setStatus(ParkingSpotStatus status) {
         this.status = status;
-    }
-
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigDecimal latitude) {
-        this.latitude = latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(BigDecimal longitude) {
-        this.longitude = longitude;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -147,9 +91,8 @@ public class ParkingSpot {
     public String toString() {
         return "ParkingSpot{" +
                 "spotId=" + spotId +
-                ", title='" + title + '\'' +
-                ", address='" + address + '\'' +
-                ", hourlyRate=" + hourlyRate +
+                ", parkingId=" + parkingId +
+                ", spotNumber=" + spotNumber +
                 ", status=" + status +
                 '}';
     }

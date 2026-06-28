@@ -1,7 +1,6 @@
 package com.epam.capstone.validation;
 
 import com.epam.capstone.exception.ValidationException;
-import com.epam.capstone.model.Favourite;
 
 public class FavouriteValidator implements Validator<Favourite> {
 

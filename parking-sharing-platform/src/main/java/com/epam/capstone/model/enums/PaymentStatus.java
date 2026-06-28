@@ -1,8 +1,8 @@
 package com.epam.capstone.model.enums;
 
 public enum PaymentStatus {
-    PENDING,
     PAID,
-    FAILED,
+    DECLINED,
+    CANCELLED,
     REFUNDED
 }

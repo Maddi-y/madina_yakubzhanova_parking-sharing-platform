@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
         );
 
         userValidator.validate(user);
-        userValidator.validatePassword(user.getPasswordHash());
+        userValidator.validatePassword(user.getPassword());
 
         if (userDao.existsByEmail(user.getEmail())) {
             LOGGER.warn("Registration attempt with existing email: {}", user.getEmail());
@@ -62,9 +62,9 @@ public class UserServiceImpl implements UserService {
         }
 
 
-        String encodedPassword = passwordEncoder.encode(user.getPasswordHash());
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
 
-        user.setPasswordHash(encodedPassword);
+        user.setPassword(encodedPassword);
 
         User savedUser = userDao.save(user);
 
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
         user.setName(dto.getName());
         user.setEmail(dto.getEmail().trim().toLowerCase());
         user.setPhone(dto.getPhone());
-        user.setPasswordHash(dto.getPassword());
+        user.setPassword(dto.getPassword());
         user.setStatus(UserStatus.ACTIVE);
         user.setCreatedAt(LocalDateTime.now());
 
@@ -177,7 +177,7 @@ public class UserServiceImpl implements UserService {
             return new ValidationException("Invalid email or password");
         });
 
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             LOGGER.warn(
                     "Authentication failed. Invalid password for email: {}", normalizedEmail);
 
@@ -394,19 +394,19 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("User account is not active");
         }
 
-        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             LOGGER.warn("Password change failed. Invalid current password. User ID={}", userId);
 
             throw new ValidationException("Current password is incorrect");
         }
 
-        if (passwordEncoder.matches(newPassword, user.getPasswordHash())) {
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new ValidationException("New password must be different from current password");
         }
 
         userValidator.validatePassword(newPassword);
 
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
 
         User updatedUser = userDao.update(user);
 
@@ -428,11 +428,11 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("User account is not active");
         }
 
-        if (passwordEncoder.matches(newPassword, user.getPasswordHash())) {
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new ValidationException("New password must be different from current password");
         }
 
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
 
         User updatedUser = userDao.update(user);
 

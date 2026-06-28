@@ -9,12 +9,19 @@ import java.util.Objects;
 public class Booking {
 
     private Long bookingId;
+
     private User driver;
+
     private ParkingSpot parkingSpot;
+
     private LocalDateTime startTime;
+
     private LocalDateTime endTime;
+
     private BigDecimal totalPrice;
+
     private BookingStatus status;
+
     private LocalDateTime createdAt;
 
     public Booking() {
@@ -105,12 +112,15 @@ public class Booking {
 
     @Override
     public boolean equals(Object object) {
+
         if (this == object) {
             return true;
         }
+
         if (!(object instanceof Booking booking)) {
             return false;
         }
+
         return Objects.equals(bookingId, booking.bookingId);
     }
 
@@ -122,21 +132,10 @@ public class Booking {
     @Override
     public String toString() {
 
-        Long driverId = null;
-        Long parkingSpotId = null;
-
-        if (driver != null) {
-            driverId = driver.getUserId();
-        }
-
-        if (parkingSpot != null) {
-            parkingSpotId = parkingSpot.getSpotId();
-        }
-
         return "Booking{" +
                 "bookingId=" + bookingId +
-                ", driverId=" + driverId +
-                ", parkingSpotId=" + parkingSpotId +
+                ", driverId=" + (driver != null ? driver.getUserId() : null) +
+                ", parkingSpotId=" + (parkingSpot != null ? parkingSpot.getSpotId() : null) +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", totalPrice=" + totalPrice +
@@ -145,3 +144,4 @@ public class Booking {
                 '}';
     }
 }
+

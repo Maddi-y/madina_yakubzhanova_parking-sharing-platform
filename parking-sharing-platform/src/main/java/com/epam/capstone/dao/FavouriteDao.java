@@ -1,7 +1,5 @@
 package com.epam.capstone.dao;
 
-import com.epam.capstone.model.Favourite;
-
 import java.util.List;
 
 public interface FavouriteDao extends GenericDao<Favourite, Long> {

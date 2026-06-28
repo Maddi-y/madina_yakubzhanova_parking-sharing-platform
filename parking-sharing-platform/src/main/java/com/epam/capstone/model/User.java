@@ -13,7 +13,7 @@ public class User {
     private String name;
     private String email;
     private String phone;
-    private String passwordHash;
+    private String password;
     private UserStatus status;
     private LocalDateTime createdAt;
 
@@ -25,7 +25,7 @@ public class User {
                 String name,
                 String email,
                 String phone,
-                String passwordHash,
+                String password,
                 UserStatus status,
                 LocalDateTime createdAt) {
 
@@ -34,7 +34,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.status = status;
         this.createdAt = createdAt;
     }
@@ -79,12 +79,12 @@ public class User {
         this.phone = phone;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public UserStatus getStatus() {

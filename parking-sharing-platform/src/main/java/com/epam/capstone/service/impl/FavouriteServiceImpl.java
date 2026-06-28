@@ -3,7 +3,6 @@ package com.epam.capstone.service.impl;
 import com.epam.capstone.dao.FavouriteDao;
 import com.epam.capstone.exception.ServiceException;
 import com.epam.capstone.exception.ValidationException;
-import com.epam.capstone.model.Favourite;
 import com.epam.capstone.service.FavouriteService;
 import com.epam.capstone.validation.FavouriteValidator;
 import org.slf4j.Logger;
