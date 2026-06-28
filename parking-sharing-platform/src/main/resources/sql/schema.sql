@@ -78,8 +78,8 @@ CONSTRAINT chk_spot_status
     CHECK (
         status IN (
             'AVAILABLE',
-            'UNAVAILABLE',
-            'ARCHIVED'
+            'OCCUPIED',
+            'OUT_OF_SERVICE'
         )
     ),
 
@@ -140,28 +140,6 @@ CONSTRAINT chk_booking_status
     )
 );
 
-CREATE TABLE favourites (
-favourite_id BIG SERIAL PRIMARY KEY,
-
-user_id BIGINT NOT NULL,
-
-spot_id BIGINT NOT NULL,
-
-created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-CONSTRAINT fk_favourites_user
-    FOREIGN KEY (user_id)
-    REFERENCES users(user_id)
-    ON DELETE CASCADE,
-
-CONSTRAINT fk_favourites_spot
-    FOREIGN KEY (spot_id)
-    REFERENCES parking_spots(spot_id)
-    ON DELETE CASCADE,
-
-CONSTRAINT uq_favourites
-    UNIQUE (user_id, spot_id)
-);
 
 CREATE TABLE reviews (
 review_id BIG SERIAL PRIMARY KEY,
@@ -244,3 +222,20 @@ CREATE TABLE password_reset_token
 
     used BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+CREATE TABLE address
+(
+    address_id BIGSERIAL PRIMARY KEY,
+
+    city VARCHAR(100) NOT NULL,
+
+    street VARCHAR(150) NOT NULL,
+
+    house_number VARCHAR(20) NOT NULL,
+
+    latitude DECIMAL(10,7),
+
+    longitude DECIMAL(10,7)
+);
+
+
