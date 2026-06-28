@@ -23,7 +23,6 @@ JDBC
 PostgreSQL
 Frontend
 JSP
-JSTL
 Bootstrap 5
 JavaScript
 Тестирование
@@ -110,8 +109,6 @@ docs/er-diagram.png
 
 Русский (RU)
 Английский (EN)
-
-Локализация реализована через ResourceBundle.
 
 Безопасность
 хранение паролей в виде BCrypt-хэшей;
