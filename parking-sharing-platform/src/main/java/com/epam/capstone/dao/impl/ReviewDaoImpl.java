@@ -14,61 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.capstone.dao.sql.ReviewSql.*;
+
 public class ReviewDaoImpl extends BaseDao implements ReviewDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReviewDaoImpl.class);
-
-    private static final String INSERT_REVIEW = """
-            INSERT INTO reviews (
-                booking_id,
-                author_id,
-                rating,
-                comment
-            )
-            VALUES (?, ?, ?, ?)
-            """;
-
-    private static final String FIND_BY_ID = """
-            SELECT *
-            FROM reviews
-            WHERE review_id = ?
-            """;
-
-    private static final String FIND_ALL = """
-            SELECT *
-            FROM reviews
-            ORDER BY review_id
-            LIMIT ?
-            OFFSET ?
-            """;
-
-    private static final String UPDATE_REVIEW = """
-            UPDATE reviews
-            SET rating = ?,
-                comment = ?
-            WHERE review_id = ?
-            """;
-
-    private static final String DELETE_BY_ID = """
-            DELETE
-            FROM reviews
-            WHERE review_id = ?
-            """;
-
-    private static final String FIND_BY_BOOKING_ID = """
-            SELECT *
-            FROM reviews
-            WHERE booking_id = ?
-            """;
-
-    private static final String FIND_BY_AUTHOR_ID = """
-            SELECT *
-            FROM reviews
-            WHERE author_id = ?
-            ORDER BY review_id
-            LIMIT ?
-            OFFSET ?
-            """;
 
     public ReviewDaoImpl(ConnectionPool connectionPool) {
         super(connectionPool);
@@ -150,8 +100,16 @@ public class ReviewDaoImpl extends BaseDao implements ReviewDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
 
                     if (resultSet.next()) {
-                        return Optional.of(mapRow(resultSet));
+
+                        Review review = mapRow(resultSet);
+
+                        LOGGER.info("Review found. ID={}", id);
+
+                        return Optional.of(review);
                     }
+
+                    LOGGER.info("Review not found. ID={}", id);
+
                     return Optional.empty();
                 }
             }
@@ -178,6 +136,8 @@ public class ReviewDaoImpl extends BaseDao implements ReviewDao {
                         reviews.add(mapRow(resultSet));
                     }
                 }
+
+                LOGGER.info("Retrieved {} reviews", reviews.size());
                 return reviews;
             }
         }, "Error finding all reviews");
@@ -226,7 +186,7 @@ public class ReviewDaoImpl extends BaseDao implements ReviewDao {
                 }
                 return deleted;
             }
-        }, "Error deleting review. ID={}");
+        },  "Error deleting review. ID=" + id);
     }
 
     @Override
@@ -242,8 +202,15 @@ public class ReviewDaoImpl extends BaseDao implements ReviewDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
 
                     if (resultSet.next()) {
-                        return Optional.of(mapRow(resultSet));
+                        Review review = mapRow(resultSet);
+
+                        LOGGER.info("Review found for booking={}", bookingId);
+
+                        return Optional.of(review);
                     }
+
+                    LOGGER.info("Review not found for booking={}", bookingId);
+
                     return Optional.empty();
                 }
             }
@@ -270,8 +237,42 @@ public class ReviewDaoImpl extends BaseDao implements ReviewDao {
                         reviews.add(mapRow(resultSet));
                     }
                 }
+
+                LOGGER.info("Found {} reviews for author={}", reviews.size(), authorId);
+
                 return reviews;
             }
         }, "Error finding reviews by authorId");
+    }
+
+    @Override
+    public List<Review> findByParkingId(Long parkingId, int page, int size) {
+
+        return execute(connection -> {
+
+            List<Review> reviews = new ArrayList<>();
+
+            try (PreparedStatement statement = connection.prepareStatement(FIND_BY_PARKING_ID)) {
+
+                statement.setLong(1, parkingId);
+                statement.setInt(2, size);
+                statement.setInt(3, calculateOffset(page, size));
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+
+                    while (resultSet.next()) {
+                        reviews.add(mapRow(resultSet));
+                    }
+                }
+
+                LOGGER.info("Found {} reviews for parking={}", reviews.size(), parkingId);
+
+                return reviews;
+
+            } catch (SQLException e) {
+                throw new DaoException("Failed to find reviews by parking id", e);
+            }
+
+        }, "Error finding reviews by parkingId=" + parkingId);
     }
 }

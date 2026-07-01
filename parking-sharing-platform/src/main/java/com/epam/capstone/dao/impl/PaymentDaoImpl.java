@@ -16,67 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.capstone.dao.sql.PaymentSql.*;
+
 public class PaymentDaoImpl extends BaseDao implements PaymentDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentDaoImpl.class);
-
-    private static final String INSERT_PAYMENT = """
-            INSERT INTO payments (
-                booking_id,
-                amount,
-                payment_method,
-                status,
-                transaction_id
-            )
-            VALUES (?, ?, ?, ?, ?)
-            """;
-
-    private static final String FIND_BY_ID = """
-            SELECT *
-            FROM payments
-            WHERE payment_id = ?
-            """;
-
-    private static final String FIND_ALL = """
-            SELECT *
-            FROM payments
-            ORDER BY payment_id
-            LIMIT ?
-            OFFSET ?
-            """;
-
-    private static final String UPDATE_PAYMENT = """
-            UPDATE payments
-            SET status = ?
-            WHERE payment_id = ?
-            """;
-
-    private static final String DELETE_BY_ID = """
-            DELETE
-            FROM payments
-            WHERE payment_id = ?
-            """;
-
-    private static final String FIND_BY_BOOKING_ID = """
-            SELECT *
-            FROM payments
-            WHERE booking_id = ?
-            """;
-
-    private static final String FIND_BY_TRANSACTION_ID = """
-            SELECT *
-            FROM payments
-            WHERE transaction_id = ?
-            """;
-
-    private static final String FIND_BY_STATUS = """
-            SELECT *
-            FROM payments
-            WHERE status = ?
-            ORDER BY payment_id
-            LIMIT ?
-            OFFSET ?
-            """;
 
     public PaymentDaoImpl(ConnectionPool connectionPool) {
         super(connectionPool);
@@ -112,6 +56,14 @@ public class PaymentDaoImpl extends BaseDao implements PaymentDao {
 
         if (entity.getTransactionId() == null || entity.getTransactionId().isBlank()) {
             throw new DaoException("Transaction id must not be null");
+        }
+
+        if (entity.getPaymentMethod() == null) {
+            throw new DaoException("Payment method must not be null");
+        }
+
+        if (entity.getStatus() == null) {
+            throw new DaoException("Payment status must not be null");
         }
 
         return execute(connection -> {
@@ -159,10 +111,23 @@ public class PaymentDaoImpl extends BaseDao implements PaymentDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
 
                     if (resultSet.next()) {
-                        return Optional.of(mapRow(resultSet));
+
+                        Payment payment = mapRow(resultSet);
+
+                        LOGGER.info("Payment found. ID={}", id);
+
+                        return Optional.of(payment);
                     }
+
+                    LOGGER.info("Payment not found. ID={}", id);
+
                     return Optional.empty();
                 }
+
+            } catch (SQLException e) {
+                throw new DaoException(
+                        "Failed to find payment by id",
+                        e);
             }
 
         }, "Error finding payment by id");
@@ -187,6 +152,9 @@ public class PaymentDaoImpl extends BaseDao implements PaymentDao {
                         payments.add(mapRow(resultSet));
                     }
                 }
+
+                LOGGER.info(
+                        "Retrieved {} payments", payments.size());
                 return payments;
             }
 
@@ -196,25 +164,9 @@ public class PaymentDaoImpl extends BaseDao implements PaymentDao {
     @Override
     public Payment update(Payment entity) {
 
-        return execute(connection -> {
+        updateStatus(entity.getPaymentId(), entity.getStatus());
 
-            try (PreparedStatement statement =
-                         connection.prepareStatement(UPDATE_PAYMENT)) {
-
-                statement.setString(1, entity.getStatus().name());
-                statement.setLong(2, entity.getPaymentId());
-
-                int affectedRows = statement.executeUpdate();
-
-                if (affectedRows == 0) {
-                    throw new DaoException("Payment not found. ID=" + entity.getPaymentId());
-                }
-
-                LOGGER.info("Payment updated successfully. ID={}", entity.getPaymentId());
-                return entity;
-            }
-
-        }, "Error updating payment");
+        return entity;
     }
 
     @Override
@@ -253,10 +205,23 @@ public class PaymentDaoImpl extends BaseDao implements PaymentDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
 
                     if (resultSet.next()) {
-                        return Optional.of(mapRow(resultSet));
+
+                        Payment payment = mapRow(resultSet);
+
+                        LOGGER.info("Payment found for booking={}", bookingId);
+
+                        return Optional.of(payment);
                     }
+
+                    LOGGER.info("Payment not found for booking={}", bookingId);
+
                     return Optional.empty();
                 }
+
+            } catch (SQLException e) {
+                throw new DaoException(
+                        "Failed to find payment by booking id",
+                        e);
             }
 
         }, "Error finding payment by booking id");
@@ -275,8 +240,16 @@ public class PaymentDaoImpl extends BaseDao implements PaymentDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
 
                     if (resultSet.next()) {
-                        return Optional.of(mapRow(resultSet));
+
+                        Payment payment = mapRow(resultSet);
+
+                        LOGGER.info("Payment found. Transaction={}", transactionId);
+
+                        return Optional.of(payment);
                     }
+
+                    LOGGER.info("Payment not found. Transaction={}", transactionId);
+
                     return Optional.empty();
                 }
             }
@@ -303,9 +276,43 @@ public class PaymentDaoImpl extends BaseDao implements PaymentDao {
                         payments.add(mapRow(resultSet));
                     }
                 }
+
+                LOGGER.info(
+                        "Found {} payments with status={}", payments.size(), status);
                 return payments;
             }
 
         }, "Error finding payments by status");
+    }
+
+    @Override
+    public void updateStatus(Long paymentId, PaymentStatus status) {
+
+        execute(connection -> {
+
+            try (PreparedStatement statement =
+                         connection.prepareStatement(UPDATE_STATUS)) {
+
+                statement.setString(1, status.name());
+                statement.setLong(2, paymentId);
+
+                int affectedRows = statement.executeUpdate();
+
+                if (affectedRows == 0) {
+                    throw new DaoException(
+                            "Payment not found. ID=" + paymentId);
+                }
+
+                LOGGER.info(
+                        "Payment status updated. ID={}, Status={}", paymentId, status);
+
+                return null;
+
+            } catch (SQLException e) {
+                throw new DaoException(
+                        "Failed to update payment status", e);
+            }
+
+        }, "Error updating payment status");
     }
 }

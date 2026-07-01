@@ -10,4 +10,6 @@ public interface ReviewDao extends GenericDao<Review, Long> {
     Optional<Review> findByBookingId(Long bookingId);
 
     List<Review> findByAuthorId(Long authorId, int page, int size);
+
+    List<Review> findByParkingId(Long parkingId, int page, int size);
 }

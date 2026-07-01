@@ -15,75 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.capstone.dao.sql.UserSql.*;
+
 @Repository
 public class UserDaoImpl extends BaseDao implements UserDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
-
-    private static final String INSERT_USER = """
-            INSERT INTO users (
-                role,
-                name,
-                email,
-                phone,
-                password_hash,
-                status
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-            """;
-
-    private static final String FIND_BY_ID = """
-            SELECT *
-            FROM users
-            WHERE user_id = ?
-            """;
-
-    private static final String FIND_BY_EMAIL = """
-            SELECT *
-            FROM users
-            WHERE email = ?
-            """;
-
-    private static final String EXISTS_BY_EMAIL = """
-            SELECT EXISTS (
-                SELECT 1
-                FROM users
-                WHERE email = ?
-            )
-            """;
-
-    private static final String EXISTS_BY_PHONE = """
-        SELECT EXISTS(
-            SELECT 1
-            FROM users
-            WHERE phone = ?
-        )
-        """;
-
-    private static final String FIND_ALL = """
-            SELECT *
-            FROM users
-            ORDER BY user_id
-            LIMIT ?
-            OFFSET ?
-            """;
-
-    private static final String UPDATE_USER = """
-            UPDATE users
-            SET role = ?,
-                name = ?,
-                email = ?,
-                phone = ?,
-                password_hash = ?,
-                status = ?
-            WHERE user_id = ?
-            """;
-
-    private static final String DELETE_BY_ID = """
-            DELETE
-            FROM users
-            WHERE user_id = ?
-            """;
 
     public UserDaoImpl(ConnectionPool connectionPool) {
         super(connectionPool);
@@ -124,15 +61,16 @@ public class UserDaoImpl extends BaseDao implements UserDao {
                 }
 
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        entity.setUserId(generatedKeys.getLong(1));
-
-                        LOGGER.info("User saved successfully. ID={}", entity.getUserId());
-                        return entity;
+                    if (!generatedKeys.next()) {
+                        throw new DaoException("Failed to retrieve generated user id");
                     }
-                }
 
-                throw new DaoException("Failed to retrieve generated user id");
+                    entity.setUserId(generatedKeys.getLong(1));
+
+                    LOGGER.info("User saved successfully. ID={}", entity.getUserId());
+
+                    return entity;
+                }
             }
         }, "Error saving user with email=" + entity.getEmail());
     }
@@ -300,10 +238,15 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 
                 statement.setString(1, phone);
 
-                try (ResultSet rs = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
 
-                    if (rs.next()) {
-                        return rs.getBoolean(1);
+                    if (resultSet.next()) {
+
+                        boolean exists = resultSet.getBoolean(1);
+
+                        LOGGER.info(
+                                "Phone existence check for {}: {}", phone, exists);
+                        return exists;
                     }
 
                     return false;

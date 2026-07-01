@@ -13,4 +13,6 @@ public interface PaymentDao extends GenericDao<Payment, Long> {
     Optional<Payment> findByTransactionId(String transactionId);
 
     List<Payment> findByStatus(PaymentStatus status, int page, int size);
+
+    void updateStatus(Long paymentId, PaymentStatus status);
 }

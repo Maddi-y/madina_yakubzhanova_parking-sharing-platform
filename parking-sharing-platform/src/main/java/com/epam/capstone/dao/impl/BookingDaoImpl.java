@@ -11,89 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.capstone.dao.sql.BookingSql.*;
+
 public class BookingDaoImpl extends BaseDao implements BookingDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BookingDaoImpl.class);
-
-    private static final String INSERT_BOOKING = """
-            INSERT INTO bookings (
-                driver_id,
-                spot_id,
-                start_time,
-                end_time,
-                total_price,
-                status
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-            """;
-
-    private static final String FIND_BY_ID = """
-            SELECT *
-            FROM bookings
-            WHERE booking_id = ?
-            """;
-
-    private static final String FIND_ALL = """
-            SELECT *
-            FROM bookings
-            ORDER BY booking_id
-            LIMIT ?
-            OFFSET ?
-            """;
-
-    private static final String UPDATE_BOOKING = """
-            UPDATE bookings
-            SET driver_id = ?,
-                spot_id = ?,
-                start_time = ?,
-                end_time = ?,
-                total_price = ?,
-                status = ?
-            WHERE booking_id = ?
-            """;
-
-    private static final String DELETE_BY_ID = """
-            DELETE
-            FROM bookings
-            WHERE booking_id = ?
-            """;
-
-    private static final String FIND_BY_DRIVER_ID = """
-            SELECT *
-            FROM bookings
-            WHERE driver_id = ?
-            ORDER BY booking_id
-            LIMIT ?
-            OFFSET ?
-            """;
-
-    private static final String FIND_BY_SPOT_ID = """
-            SELECT *
-            FROM bookings
-            WHERE spot_id = ?
-            ORDER BY booking_id
-            LIMIT ?
-            OFFSET ?
-            """;
-
-    private static final String FIND_BY_SPOT_ID_ALL = """
-            SELECT *
-            FROM bookings
-            WHERE spot_id = ?
-            """;
-
-    private static final String FIND_BY_STATUS = """
-            SELECT *
-            FROM bookings
-            WHERE status = ?
-            ORDER BY booking_id
-            LIMIT ?
-            OFFSET ?
-            """;
 
     public BookingDaoImpl(ConnectionPool connectionPool) {
         super(connectionPool);
@@ -133,7 +60,7 @@ public class BookingDaoImpl extends BaseDao implements BookingDao {
         return execute(connection -> {
 
             try (PreparedStatement statement =
-                         connection.prepareStatement(INSERT_BOOKING, Statement.RETURN_GENERATED_KEYS)) {
+                         connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
                 statement.setLong(1, entity.getDriver().getUserId());
                 statement.setLong(2, entity.getParkingSpot().getSpotId());
@@ -222,7 +149,7 @@ public class BookingDaoImpl extends BaseDao implements BookingDao {
 
         return execute(connection -> {
 
-            try (PreparedStatement statement = connection.prepareStatement(UPDATE_BOOKING)) {
+            try (PreparedStatement statement = connection.prepareStatement(UPDATE)) {
 
                 statement.setLong(1, entity.getDriver().getUserId());
                 statement.setLong(2, entity.getParkingSpot().getSpotId());
@@ -253,7 +180,7 @@ public class BookingDaoImpl extends BaseDao implements BookingDao {
 
         return execute(connection -> {
 
-            try (PreparedStatement statement = connection.prepareStatement(DELETE_BY_ID)) {
+            try (PreparedStatement statement = connection.prepareStatement(DELETE)) {
 
                 statement.setLong(1, id);
 
@@ -380,5 +307,76 @@ public class BookingDaoImpl extends BaseDao implements BookingDao {
             }
 
         }, "Error finding bookings by status=" + status);
+    }
+
+    @Override
+    public boolean existsActiveBooking(Long spotId, LocalDateTime startTime, LocalDateTime endTime) {
+
+        return execute(connection -> {
+
+            try (PreparedStatement statement = connection.prepareStatement(EXISTS_ACTIVE_BOOKING)) {
+
+                statement.setLong(1, spotId);
+                statement.setTimestamp(2, Timestamp.valueOf(endTime));
+                statement.setTimestamp(3, Timestamp.valueOf(startTime));
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+
+                    if (resultSet.next()) {
+
+                        boolean exists = resultSet.getBoolean(1);
+
+                        LOGGER.info(
+                                "Active booking check. SpotId={}, Exists={}",
+                                spotId,
+                                exists);
+
+                        return exists;
+                    }
+
+                    return false;
+                }
+
+            } catch (SQLException e) {
+                throw new DaoException(
+                        "Failed to check active booking",
+                        e);
+            }
+
+        }, "Error checking active booking");
+    }
+
+    @Override
+    public void updateStatus(Long bookingId, BookingStatus status) {
+
+        execute(connection -> {
+
+            try (PreparedStatement statement =
+                         connection.prepareStatement(UPDATE_STATUS)) {
+
+                statement.setString(1, status.name());
+                statement.setLong(2, bookingId);
+
+                int affectedRows = statement.executeUpdate();
+
+                if (affectedRows == 0) {
+                    throw new DaoException(
+                            "Booking not found. ID=" + bookingId);
+                }
+
+                LOGGER.info(
+                        "Booking status updated. ID={}, Status={}",
+                        bookingId,
+                        status);
+
+                return null;
+
+            } catch (SQLException e) {
+                throw new DaoException(
+                        "Failed to update booking status",
+                        e);
+            }
+
+        }, "Error updating booking status");
     }
 }
